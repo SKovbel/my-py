@@ -1,1 +1,2 @@
-aclImdb*
+tmp/*
+big-query/google-keys.json
