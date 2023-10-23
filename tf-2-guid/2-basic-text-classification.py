@@ -9,7 +9,7 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras import losses
 
-updir = 'tmp'
+updir = 'var/aclImdb_v1'
 batch_size = 32
 seed = 42
 max_features = 10000
