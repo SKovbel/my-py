@@ -1,10 +1,13 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as layers
 import tensorflow_hub as hub
 import tensorflow_datasets as tfds
+
+from dexa.chart import train
 
 print("Version: ", tf.__version__)
 print("Eager mode: ", tf.executing_eagerly())
@@ -40,16 +43,18 @@ model.compile(
     metrics=['accuracy']
 )
 
-history = model.fit(
+fit_result = model.fit(
     train_data.shuffle(10000).batch(512),
-    epochs=10,
+    epochs=5,
     validation_data=validation_data.batch(512),
     verbose=1
 )
 
-results = model.evaluate(test_data.batch(512), verbose=2)
-for name, value in zip(model.metrics_names, results):
-    print("%s: %.3f" % (name, value))
+loss, accuracy = model.evaluate(test_data.batch(512), verbose=2)
+
+fit_chart = train.FitChart()
+fit_chart.show(model, fit_result)
+fit_chart.print(model, fit_result)
 
 examples = [
   "The movie was great!",

@@ -9,13 +9,15 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras import losses
 
+from dexa.chart import train
+
 updir = 'var/aclImdb_v1'
 batch_size = 32
 seed = 42
 max_features = 10000
 sequence_len = 250
 embedding_dim = 16
-epochs = 10
+epochs = 2
 
 
 url = "https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
@@ -92,39 +94,14 @@ model.compile(
     optimizer='adam',
     metrics=tf.metrics.BinaryAccuracy(threshold=0.0)
 )
-history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
+fit_result = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
 loss, accuracy = model.evaluate(test_ds)
 
 print("Loss: ", loss)
 print("Accuracy: ", accuracy)
 
-history_dict = history.history
-
-# test
-acc = history_dict['binary_accuracy']
-val_acc = history_dict['val_binary_accuracy']
-loss = history_dict['loss']
-val_loss = history_dict['val_loss']
-epochs = range(1, len(acc) + 1)
-
-plt.subplot(1, 2, 1)
-plt.plot(epochs, loss, 'bo', label='Training loss')
-plt.plot(epochs, val_loss, 'b', label='Validation loss')
-plt.title('Training and validation loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-
-plt.subplot(1, 2, 2)
-plt.plot(epochs, acc, 'bo', label='Training acc')
-plt.plot(epochs, val_acc, 'b', label='Validation acc')
-plt.title('Training and validation accuracy')
-plt.xlabel('Epochs')
-plt.ylabel('Accuracy')
-plt.legend(loc='lower right')
-
-plt.show()
-
+fit_chart = train.FitChart()
+fit_chart.show(model, fit_result)
 
 export_model = tf.keras.Sequential([
   vectorize_layer,
