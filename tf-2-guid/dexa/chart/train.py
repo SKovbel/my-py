@@ -7,6 +7,8 @@ class FitChart:
     def chart(self, model, result):
         history = result.history
 
+        plt.figure(num="Taining info")
+
         # test
         acc = history['binary_accuracy'] if 'binary_accuracy' in history else history['accuracy']
         val_acc = history['val_binary_accuracy'] if 'val_binary_accuracy' in history else history['val_accuracy']
