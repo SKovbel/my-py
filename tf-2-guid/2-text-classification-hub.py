@@ -53,7 +53,7 @@ fit_result = model.fit(
 loss, accuracy = model.evaluate(test_data.batch(512), verbose=2)
 
 fit_chart = train.FitChart()
-fit_chart.show(model, fit_result)
+fit_chart.chart(model, fit_result)
 fit_chart.print(model, fit_result)
 
 examples = [

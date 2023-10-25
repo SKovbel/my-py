@@ -4,8 +4,8 @@ class FitChart:
     def __init__(self):
         None
 
-    def show(self, model, fit_result):
-        history = fit_result.history
+    def chart(self, model, result):
+        history = result.history
 
         # test
         acc = history['binary_accuracy'] if 'binary_accuracy' in history else history['accuracy']
@@ -32,6 +32,6 @@ class FitChart:
 
         plt.show()
 
-    def print(self, model, fit_result):
-        for name, value in zip(model.metrics_names, fit_result):
+    def print(self, model, result):
+        for name, value in zip(model.metrics_names, result):
             print("%s: %.3f" % (name, value))

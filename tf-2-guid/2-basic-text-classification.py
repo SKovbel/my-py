@@ -101,7 +101,7 @@ print("Loss: ", loss)
 print("Accuracy: ", accuracy)
 
 fit_chart = train.FitChart()
-fit_chart.show(model, fit_result)
+fit_chart.chart(model, fit_result)
 
 export_model = tf.keras.Sequential([
   vectorize_layer,

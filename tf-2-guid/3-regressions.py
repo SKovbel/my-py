@@ -16,8 +16,11 @@ from dexa.chart import train
 
 print(tf.__version__)
 
-chart = False
+chart = True
 debug = True
+epochs = 100
+validation = 0.2 # 20%
+learning_rate = 0.1
 
 ## The Auto MPG dataset
 def load_data():
@@ -76,6 +79,7 @@ def normalize_layer(dataset, features, labels):
             print()
             #?print('Normalized:', normalizer(first).numpy())
 
+    return normalizer
 
 ## Linear regression
 ### Linear regression with one variable
@@ -85,36 +89,75 @@ def liniear_regression(dataset, feature, labels):
     normalizer = layers.Normalization(input_shape=[1,], axis=None)
     normalizer.adapt(data)
 
-    if chart:
-        sns.displot(labels, kde=True)
-        plt.show()
-
     model = tf.keras.Sequential([
         normalizer,
         layers.Dense(units=1)
     ])
-    model.summary()
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
-        loss=losses.MeanAbsoluteError() #'mean_absolute_error'
+        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+        loss=losses.MeanAbsoluteError(), #'mean_absolute_error'
+        metrics=['accuracy']
     )
 
-    fit_history = model.fit(
+    result = model.fit(
         feature,
         labels,
-        epochs=100,
-        validation_split = 0.2, # Calculate validation results on 20% of the training data.
-        verbose=2,
+        epochs=epochs,
+        validation_split = validation, # Calculate validation results on 20% of the training data.
+        verbose=2 if debug else 1
     )
+
+    if debug:
+        model.summary()
+
+    if chart:
+        sns.displot(labels, kde=True)
+        plt.show()
+
+        fit_chart = train.FitChart()
+        fit_chart.chart(model, result)
+        fit_chart.print(model, result)
 
     return model
 
 
 ### Linear regression with multiple inputs
+def multi_liniear_regression(dataset, feature, labels):
+    normalizer = normalize_layer(dataset, feature, labels)
 
+    model = tf.keras.Sequential([
+        normalizer,
+        layers.Dense(units=1)
+    ])
 
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+        loss=losses.MeanAbsoluteError(), #'mean_absolute_error'
+        metrics=['accuracy']
+    )
+
+    result = model.fit(
+        train_features,
+        train_labels,
+        epochs=epochs,
+        validation_split = validation,
+        verbose=2 if debug else 1
+    )
+
+    if debug:
+        model.summary()
+
+    if chart:
+        sns.displot(labels, kde=True)
+        plt.show()
+
+        fit_chart = train.FitChart()
+        fit_chart.chart(model, result)
+        fit_chart.print(model, result)
+
+    return model
 
 train_dataset, train_features, train_labels, test_dataset, test_features, test_labels = load_data()
-normalizer = normalize_layer(train_dataset, train_features, train_labels)
-model = liniear_regression(train_dataset, train_features['Horsepower'], train_labels)
+#model = liniear_regression(train_dataset, train_features['Horsepower'], train_labels)
+model = multi_liniear_regression(train_dataset, train_features, train_labels)
