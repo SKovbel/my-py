@@ -1,5 +1,6 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import matplotlib.pyplot as plt
 import re
 import numpy as np
@@ -13,7 +14,7 @@ from tensorflow.keras import losses
 from dexa.chart import train
 
 debug = True
-updir = 'var/stack_overflow_16k'
+updir = 'tmp/stack_overflow_16k'
 batch_size = 32
 seed = 42
 max_features = 10000

@@ -11,7 +11,7 @@ from tensorflow.keras import losses
 
 from dexa.chart import train
 
-updir = 'var/aclImdb_v1'
+updir = 'tmp/aclImdb_v1'
 batch_size = 32
 seed = 42
 max_features = 10000
