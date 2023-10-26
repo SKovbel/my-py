@@ -31,7 +31,7 @@ st = yt.reshape((len(yt), LSTM_OUT))
 gt = TimeseriesGenerator(st, st, length = LSTM_IN, batch_size = BATCH)
 
 model = models.Sequential(layers=[
-    layers.LSTM(LSTM_NODES, input_shape=(LSTM_IN, LSTM_OUT)),
+    layers.SimpleRNN(LSTM_NODES, input_shape=(LSTM_IN, LSTM_OUT)),
     layers.Dense(1)
 ])
 

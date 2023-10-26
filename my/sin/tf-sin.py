@@ -13,20 +13,22 @@ from tensorflow.keras import optimizers
 
 import matplotlib.pyplot as plt
 
-MIN=-20
-MAX=20
-SAMPLES=1000
-DIFF = 0.01
 LR=0.1
 EPOCHS = 100
+
+MUL = 20
+MIN = -20
+MAX = 20
+MINT = 10
+MAXT = 20
 
 def func(x):
     return np.sin(x)
 
-x = np.random.uniform(MIN, MAX, SAMPLES).reshape((-1, 1))
+x = np.sort(np.random.uniform(2*MIN, 2*MAX, 2 * MUL * (MAX - MIN))).reshape((-1, 1))
 y = func(x)
 
-xt = np.random.uniform(MIN, MAX, SAMPLES).reshape((-1, 1))
+xt = np.random.uniform(MINT, MAXT, MUL * (MAXT - MINT)).reshape((-1, 1))
 yt = func(xt)
 
 model = models.Sequential(layers = [
@@ -37,20 +39,13 @@ model = models.Sequential(layers = [
 
 optimizer = optimizers.Adam(learning_rate=LR)
 model.compile(optimizer=optimizer, loss='mean_squared_error', metrics=[])
-result = model.fit(x, y, epochs=EPOCHS)
+result = model.fit(xt, yt, epochs=EPOCHS)
 
-yp = model.predict(xt)
+yp = model.predict(x)
 
-diff = np.abs(yp - yt) / yt
-true_cnt = sum(np.where(diff < DIFF, 1, 0))
-false_cnt = len(diff) - true_cnt
-
-plt.subplot(1, 2, 1)
-plt.scatter(xt, yp, marker='o', color='b')  # 'o' for circular points, 'b' for blue color
-plt.title('Predicted')
-
-plt.subplot(1, 2, 2)
-plt.scatter(xt, yt, marker='o', color='b')  # 'o' for circular points, 'b' for blue color
-plt.title('Train')
+plt.plot(x, y, c='b', label="sin")  # 'o' for circular points, 'b' for blue color
+plt.scatter(xt, yt, marker='x', c='g', label="Train")  # 'o' for circular points, 'b' for blue color
+plt.scatter(x, yp, s=6, c='r', label="Predicted")  # 'o' for circular points, 'b' for blue color
+plt.legend(loc="lower left")
 
 plt.show()

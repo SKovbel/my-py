@@ -17,7 +17,7 @@ LSTM_NODES = 4
 MUL = 20
 MIN = -20
 MAX = 20
-MINT = 10
+MINT = 15
 MAXT = 20
 
 x = np.sort(np.random.uniform(MIN, MAX, MUL * (MAX - MIN)))
@@ -31,7 +31,7 @@ st = yt.reshape((len(yt), LSTM_OUT))
 gt = TimeseriesGenerator(st, st, length = LSTM_IN, batch_size = BATCH)
 
 model = models.Sequential(layers=[
-    layers.LSTM(LSTM_NODES, input_shape=(LSTM_IN, LSTM_OUT)),
+    layers.GRU(LSTM_NODES, input_shape=(LSTM_IN, LSTM_OUT)),
     layers.Dense(1)
 ])
 
@@ -43,7 +43,7 @@ model.fit(gt, epochs=EPOCHS, verbose=1)
 yp = model.predict(g)
 
 plt.plot(x, y, lw=1, c='b', label='sin')
-plt.scatter(xt, yt, marker='x', c='g', label='Train')
+plt.scatter(xt, yt, c='g', marker='x', label='Train')
 plt.scatter(x[LSTM_IN:], yp, s=6, c='r', label='Predict')
 plt.legend(loc="lower left")
 
