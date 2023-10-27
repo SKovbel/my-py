@@ -17,7 +17,7 @@ debug = True
 updir=os.path.join(os.path.dirname(__file__),  "../../tmp/stack_overflow_16k")
 
 batch_size = 32
-seed = 42git
+seed = 42
 max_features = 10000
 sequence_len = 1000
 embedding_dim = 16
