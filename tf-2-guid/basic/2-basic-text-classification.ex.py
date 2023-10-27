@@ -14,9 +14,10 @@ from tensorflow.keras import losses
 from dexa.chart import train
 
 debug = True
-updir = 'tmp/stack_overflow_16k'
+updir=os.path.join(os.path.dirname(__file__),  "../../tmp/stack_overflow_16k")
+
 batch_size = 32
-seed = 42
+seed = 42git
 max_features = 10000
 sequence_len = 1000
 embedding_dim = 16

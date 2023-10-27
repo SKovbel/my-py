@@ -14,7 +14,7 @@ print("Eager mode: ", tf.executing_eagerly())
 print("Hub version: ", hub.__version__)
 print("GPU is", "available" if tf.config.list_physical_devices("GPU") else "NOT AVAILABLE")
 
-dirup=os.path.join(os.path.dirname(__file__),  "../tmp/")
+dirup=os.path.join(os.path.dirname(__file__),  "../../tmp/")
 embedding = "https://tfhub.dev/google/nnlm-en-dim50/2"
 dataset_name = "imdb_reviews"
 

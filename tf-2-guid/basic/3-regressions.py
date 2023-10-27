@@ -20,7 +20,7 @@ chart = False
 debug = True
 epochs = 100
 validation = 0.2 # 20%
-save_file = os.path.join(os.path.dirname(__file__), '../tmp/model.keras')
+save_file = os.path.join(os.path.dirname(__file__), '../../tmp/model.keras')
 
 ## The Auto MPG dataset
 def load_data():

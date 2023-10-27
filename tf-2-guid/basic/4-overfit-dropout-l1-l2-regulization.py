@@ -30,8 +30,8 @@ BUFFER_SIZE = int(1e4)
 BATCH_SIZE = 500
 STEPS_PER_EPOCH = N_TRAIN//BATCH_SIZE
 
-updir = os.path.join(os.path.dirname(__file__), '../tmp/higgs')
-logdir = os.path.join(os.path.dirname(__file__), '../tmp/higgs/logdir')
+updir = os.path.join(os.path.dirname(__file__), '../../tmp/higgs')
+logdir = os.path.join(os.path.dirname(__file__), '../../tmp/higgs/logdir')
 
 lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
     0.001,
