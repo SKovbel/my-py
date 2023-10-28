@@ -21,12 +21,14 @@ MINT = 10
 MAXT = 20
 
 x = np.sort(np.random.uniform(MIN, MAX, MUL * (MAX - MIN)))
-y = np.sin(x)
+y = np.sin(x) * np.cos(x/2)
 s = y.reshape((len(y), LSTM_OUT))
 g = TimeseriesGenerator(s, s, length = LSTM_IN, batch_size = BATCH)
+sp = x.reshape((len(x), LSTM_OUT))
+gp = TimeseriesGenerator(sp, sp, length = LSTM_IN, batch_size = BATCH)
 
 xt = np.sort(np.random.uniform(MINT, MAXT, MUL * (MAXT - MINT)))
-yt = np.sin(xt)
+yt = np.sin(xt) * np.cos(xt/2)
 st = yt.reshape((len(yt), LSTM_OUT))
 gt = TimeseriesGenerator(st, st, length = LSTM_IN, batch_size = BATCH)
 
@@ -40,7 +42,7 @@ model.compile(optimizer=adam, loss='mse')
 
 model.fit(gt, epochs=EPOCHS, verbose=1)
 
-yp = model.predict(g)
+yp = model.predict(gp)
 
 plt.plot(x, y, lw=1, c='b', label='sin')
 plt.scatter(xt, yt, marker='x', c='g', label='Train')

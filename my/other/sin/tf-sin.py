@@ -14,7 +14,7 @@ from tensorflow.keras import optimizers
 import matplotlib.pyplot as plt
 
 LR=0.01
-EPOCHS = 10000
+EPOCHS = 1000
 
 MUL = 20
 MIN = -20
