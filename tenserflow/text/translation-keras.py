@@ -11,6 +11,14 @@ from tensorflow_text.tools.wordpiece_vocab import (
     bert_vocab_from_dataset as bert_vocab,
 )
 
+# TokenAndPositionEmbedding - encoder_input
+# TransformerEncoder(
+# Input encoded_seq_inputs - decode states input
+
+# TokenAndPositionEmbedding - decoder_input
+# TransformerDecoder [PositionalEmbedding]
+# Functional [InputLayer]
+
 BATCH_SIZE = 64
 EPOCHS = 1  # This should be at least 10 for convergence
 MAX_SEQUENCE_LENGTH = 20
@@ -170,13 +178,7 @@ def create_model():
     )(decoder_sequence=x, encoder_sequence=encoded_seq_inputs)
     x = keras.layers.Dropout(0.5)(x)
     decoder_outputs = keras.layers.Dense(SPA_VOCAB_SIZE, activation="softmax")(x)
-    decoder = keras.Model(
-        [
-            decoder_inputs,
-            encoded_seq_inputs,
-        ],
-        decoder_outputs,
-    )
+    decoder = keras.Model([decoder_inputs, encoded_seq_inputs,], decoder_outputs)
     decoder_outputs = decoder([decoder_inputs, encoder_outputs])
 
     transformer = keras.Model(
@@ -266,7 +268,7 @@ def test():
         print()
 
 def build_and_train():
-    model_path = os.path.join(os.path.dirname(__file__), '../../tmp/translation/keras.save')
+    model_path = os.path.join(up_dir, 'keras.save')
     if os.path.exists(model_path):
         print('load model')
         transformer = tf.keras.models.load_model(model_path)

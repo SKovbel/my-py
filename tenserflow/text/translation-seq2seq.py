@@ -5,16 +5,40 @@ import re
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.layers import TextVectorization
+import keras
+from PIL import Image
+
+## Encoder
+# encoder_inputs = Input (En)
+# encoder_inputs = Embedding(encoder_inputs) + Embedding(timeseries)
+# attention_output = MultiHeadAttention (encoder_inputs)
+# inp = LayerNormalization1 (encoder_inputs + attention_output)
+# x = Dense Relu (inp)
+# x = Dense Linear (x)
+# encoder_outputs = LayerNormalization2(inp + x)
+# encoder = Model(encoder_inputs, encoder_outputs)
+# 
+#
+## Decorer
+# decoder_inputs = Input (Sp)
+# decoder_inputs = Embedding(decoder_inputs) + Embedding(timeseries)
+# attention_output_1 = MultiHeadAttention1 (decoder_inputs)
+# norm = LayerNormalization1 (decoder_inputs + attention_output_1)
+# attention_output_2 = MultiHeadAttention2 (encoder_outputs)
+# inp = LayerNormalization2 (norm + attention_output_2)
+# x = Dense Relu(inp)
+# x = Dense Linear(x)
+# x = LayerNormalization3(inp + x)
+# x = Dropout(x)
+# decoder_outputs = Dense Softmax(x)
+#
+#
+# transformer = Model([encoder_inputs(En), decoder_inputs(Sp)], decoder_outputs)
+# predictions = transformer([tokenized_input_sentence, tokenized_target_sentence])
 
 
-# InputLayer1 - encoder_input
-# PositionalEmbedding
-# InputLayer2 - decoder_input
-# TransformerEncoder [PositionalEmbedding]
-# Functional [InputLayer]
 DEBUG = True
 vocab_size = 15000
 sequence_length = 20
@@ -276,7 +300,21 @@ transformer.summary()
 transformer.compile(
     "rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
 )
-transformer.fit(train_ds, epochs=epochs, validation_data=val_ds)
+
+def fit():
+    model_path = os.path.join(up_dir, 'transformer.save')
+    if os.path.exists(model_path):
+        print('load model')
+        transformer = tf.keras.models.load_model(model_path)
+    else:
+        transformer.fit(train_ds, epochs=epochs, validation_data=val_ds)
+        transformer.save(model_path)
+
+    transformer.summary()
+    return transformer
+
+
+fit()
 
 
 spa_vocab = spa_vectorization.get_vocabulary()
@@ -305,4 +343,19 @@ for _ in range(30):
     input_sentence = random.choice(test_eng_texts)
     translated = decode_sequence(input_sentence)
 
+
+os.makedirs(up_dir, exist_ok=True)
+image_path = os.path.join(up_dir, "graph.png")
+keras.utils.plot_model(
+    decoder,
+    image_path,
+    show_shapes=True,
+    show_dtype=True,
+    expand_nested=True,
+    show_layer_activations=True,
+    show_trainable=True
+)
+
+image = Image.open(image_path)
+image.show()
 
