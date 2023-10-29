@@ -5,6 +5,7 @@ model = keras.Sequential([
     keras.layers.GlobalAveragePooling1D()
 ])
 
+# remove timeseries dimension (as example)
 x = tf.constant([
     [1, 4, 7],
     [12, 14, 16],
@@ -22,6 +23,6 @@ y = model.predict(x)
 print(x)
 
 # [
-#   [[11, 16, 6]]
+#   [[11, 16, 21]]
 # ]
 print(y)
