@@ -21,7 +21,7 @@ y = model.predict(x)
 # ]
 print(x)
 
-#['Good', 'morning', 'How', 'are', 'you', 'doing']
+#['good', 'morning', 'how', 'are', 'you', 'doing']
 print(flat)
 
 # [

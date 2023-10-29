@@ -32,9 +32,9 @@ shutil.rmtree(os.path.join(train_dir, 'unsup'))
 
 
 def standardization(input_data):
-  lowercase = tf.strings.lower(input_data)
-  stripped_html = tf.strings.regex_replace(lowercase, '<br />', ' ')
-  return tf.strings.regex_replace(stripped_html, '[%s]' % re.escape(string.punctuation), '')
+    lowercase = tf.strings.lower(input_data)
+    stripped_html = tf.strings.regex_replace(lowercase, '<br />', ' ')
+    return tf.strings.regex_replace(stripped_html, '[%s]' % re.escape(string.punctuation), '')
 
 raw_val_ds = tf.keras.utils.text_dataset_from_directory(train_dir, batch_size=batch_size, validation_split=0.2, subset='validation', seed=seed)
 raw_test_ds = tf.keras.utils.text_dataset_from_directory(test_dir, batch_size=batch_size)
@@ -45,8 +45,8 @@ vectorize_layer = layers.TextVectorization(standardize=standardization, max_toke
 vectorize_layer.adapt(train_text)
 
 def vectorize_text(text, label):
-  text = tf.expand_dims(text, -1)
-  return vectorize_layer(text), label
+    text = tf.expand_dims(text, -1)
+    return vectorize_layer(text), label
 
 
 val_ds = raw_val_ds.cache()
