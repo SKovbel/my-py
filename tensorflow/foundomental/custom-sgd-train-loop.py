@@ -18,7 +18,6 @@ plt.plot(x, f(x), label='Ground truth')
 plt.legend();
 
 class Model(tf.Module):
-
   def __init__(self):
         # Randomly generate weight and bias terms
         rand_init = tf.random.uniform(shape=[3], minval=0., maxval=5., seed=22)
