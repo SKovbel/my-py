@@ -108,6 +108,7 @@ model.fit(
 )
 '''
 
+print('load 2 variant')
 # Using tf.data for finer control
 # Custom data load
 list_ds = tf.data.Dataset.list_files(str(data_dir/'*/*'), shuffle=False)
@@ -119,7 +120,6 @@ for f in list_ds.take(5):
 class_names = np.array(sorted([item.name for item in data_dir.glob('*') if item.name != "LICENSE.txt"]))
 print(class_names)
 
-print('load 2 variant')
 val_size = int(image_count * 0.2)
 train_ds = list_ds.skip(val_size)
 val_ds = list_ds.take(val_size)
@@ -128,6 +128,7 @@ val_ds = list_ds.take(val_size)
 print(tf.data.experimental.cardinality(train_ds).numpy())
 print(tf.data.experimental.cardinality(val_ds).numpy())
 
+print('load 3 variant')
 def get_label(file_path):
     # Convert the path to a list of path components
     parts = tf.strings.split(file_path, os.path.sep)
@@ -150,7 +151,6 @@ def process_path(file_path):
     img = decode_img(img)
     return img, label
 
-print('load 3 variant')
 train_ds = train_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 val_ds = val_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 
@@ -203,4 +203,4 @@ get_label_name = metadata.features['label'].int2str
 image, label = next(iter(train_ds))
 _ = plt.imshow(image)
 _ = plt.title(get_label_name(label))
-_.show()
+plt.show()

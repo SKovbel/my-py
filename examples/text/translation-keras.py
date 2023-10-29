@@ -11,13 +11,21 @@ from tensorflow_text.tools.wordpiece_vocab import (
     bert_vocab_from_dataset as bert_vocab,
 )
 
-# TokenAndPositionEmbedding - encoder_input
-# TransformerEncoder(
-# Input encoded_seq_inputs - decode states input
+# encoder_inputs = Input()
+# x = TokenAndPositionEmbedding(encoder_inputs)
+# encoder_outputs = TransformerEncoder(x)
+# encoder = Model(encoder_inputs, encoder_outputs)
+# 
+# decoder_inputs = Input()
+# sequence = Input()
+# x = TokenAndPositionEmbedding(decoder_inputs)
+# x = TransformerDecoder(x, sequence)
+# x = Dropout(x)
+# decoder_outputs = Dense Sofrmax(x)
+# decoder = keras.Model([decoder_inputs, encoded_seq_inputs], decoder_outputs)
+# 
+# decoder_outputs = decoder([decoder_inputs, encoder_outputs])
 
-# TokenAndPositionEmbedding - decoder_input
-# TransformerDecoder [PositionalEmbedding]
-# Functional [InputLayer]
 
 BATCH_SIZE = 64
 EPOCHS = 1  # This should be at least 10 for convergence

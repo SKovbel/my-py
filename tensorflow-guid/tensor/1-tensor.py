@@ -1,3 +1,4 @@
+# https://www.tensorflow.org/guide/tensor
 import tensorflow as tf
 import numpy as np
 
