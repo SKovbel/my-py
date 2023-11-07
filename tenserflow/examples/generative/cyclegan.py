@@ -45,12 +45,11 @@ def download_and_parsing():
 
     dataset = tf.keras.utils.image_dataset_from_directory(data_dir)
     class_names = dataset.class_names
-    print(class_names)
 
-    train_horses = dataset.filter(do_filter(class_names.index('trainA')))
-    train_zebras = dataset.filter(do_filter(class_names.index('trainB')))
-    test_horses = dataset.filter(do_filter(class_names.index('testA')))
-    test_zebras = dataset.filter(do_filter(class_names.index('testB')))
+    train_horses = dataset.filter(do_filter(class_names.index('trainA'))).unbatch()
+    train_zebras = dataset.filter(do_filter(class_names.index('trainB'))).unbatch()
+    test_horses = dataset.filter(do_filter(class_names.index('testA'))).unbatch()
+    test_zebras = dataset.filter(do_filter(class_names.index('testB'))).unbatch()
     return train_horses, train_zebras, test_horses, test_zebras
 
 def normalize_img(img):
@@ -60,8 +59,9 @@ def normalize_img(img):
 
 def preprocess_train_image(img, label):
     img = tf.image.random_flip_left_right(img) # Random flip
-    img = tf.image.resize(img, [*orig_img_size]) # Resize to the original size first
-    img = tf.image.random_crop(img, size=[*input_img_size]) # Random crop to 256X256
+    img = tf.image.resize(img, orig_img_size) # Resize to the original size first
+    print(img.shape, input_img_size)
+    img = tf.image.random_crop(img, size=input_img_size) # Random crop to 256X256
     img = normalize_img(img) # Normalize the pixel values in the range [-1, 1]
     return img
 
