@@ -9,9 +9,6 @@ from google.cloud import bigquery
 # Initialize a BigQuery client
 client = bigquery.Client()
 
-# Define your SQL query
-
-
 limit = 100
 offset = 0
 

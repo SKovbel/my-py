@@ -32,7 +32,7 @@ def model_builder(hp):
 
     return model
 
-info_dir = os.path.join(os.path.dirname(__file__), '../../tmp/tuner')
+info_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/tuner')
 tuner = kt.Hyperband(
     model_builder,
     objective='val_accuracy',

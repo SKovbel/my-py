@@ -8,7 +8,7 @@ from PIL import Image
 # 3 layers input
 # 2 loss functions
 
-tmp_dir = os.path.join(os.path.dirname(__file__), '../../tmp/keras-basic')
+tmp_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/keras-basic')
 os.makedirs(tmp_dir, exist_ok=True)
 
 num_tags = 12  # Number of unique issue tags

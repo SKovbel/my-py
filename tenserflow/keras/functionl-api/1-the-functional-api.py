@@ -7,7 +7,7 @@ import keras
 from keras import layers
 from PIL import Image
 
-tmp_dir = os.path.join(os.path.dirname(__file__), '../../tmp/keras-basic')
+tmp_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/keras-basic')
 os.makedirs(tmp_dir, exist_ok=True)
 
 # Directed Acyclic Graph (DAG) 

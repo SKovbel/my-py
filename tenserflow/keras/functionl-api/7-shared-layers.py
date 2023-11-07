@@ -4,7 +4,7 @@ import tensorflow as tf
 import keras
 from keras import layers
 from PIL import Image
-tmp_dir = os.path.join(os.path.dirname(__file__), '../../tmp/keras-basic')
+tmp_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/keras-basic')
 
 # Embedding for 1000 unique words mapped to 128-dimensional vectors
 shared_embedding = layers.Embedding(1000, 128)

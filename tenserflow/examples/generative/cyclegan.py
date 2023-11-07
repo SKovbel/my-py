@@ -11,7 +11,7 @@ from tensorflow.keras import layers
 import tensorflow_addons as tfa
 import tensorflow_datasets as tfds
 
-up_dir = os.path.join(os.path.dirname(__file__), '../../tmp/cyclegan')
+up_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/cyclegan')
 
 datasets = tfds.list_builders()
 for dataset in datasets:
@@ -27,19 +27,6 @@ kernel_init = keras.initializers.RandomNormal(mean=0.0, stddev=0.02) # Weights i
 gamma_init = keras.initializers.RandomNormal(mean=0.0, stddev=0.02) # Gamma initializer for instance normalization.
 buffer_size = 256
 batch_size = 1
-
-
-Bank Processing Center
-Oracle, Oracle DBA, Oracle Forms, Oracle Reports, Java, Queue
-
-From Junior DBA to System Architect.
-
-Administration of 50 Linux servers (Oracle AS + DB).
-Lots of optimization work, from simple fix and refactoring to move systems to new technology.
-PL/SQL developer, Forms and Reports developer,  Java JEE developer.
-Design and build 5 new systems. 
-Global optimized 2 systems.
-
 
 def download_and_parsing():
     def do_filter(class_name_idx):

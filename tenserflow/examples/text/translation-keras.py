@@ -39,7 +39,7 @@ NUM_HEADS = 8
 
 DEBUG = True
 
-up_dir = os.path.join(os.path.dirname(__file__), '../../tmp/translation')
+up_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/translation')
 transformer = None
 
 # parsing

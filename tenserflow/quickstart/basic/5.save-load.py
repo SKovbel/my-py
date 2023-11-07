@@ -52,7 +52,7 @@ class CustomCallback(callbacks.Callback):
 ##
 # example 1 - save & load after each epoch to single file
 ##
-checkpoint_path = os.path.join(os.path.dirname(__file__), '../../tmp/save-load/example-1/cp.ckpt')
+checkpoint_path = os.path.join(os.path.dirname(__file__), '../../../tmp/save-load/example-1/cp.ckpt')
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 model = create_model()
@@ -82,7 +82,7 @@ print("Restored model1, accuracy: {:5.2f}%".format(100 * acc))
 ##
 # example 2 - save every 5 epochs to separate file
 ##
-checkpoint_path = os.path.join(os.path.dirname(__file__), '../../tmp/save-load/example-2/cp-{epoch:04d}.ckpt')
+checkpoint_path = os.path.join(os.path.dirname(__file__), '../../../tmp/save-load/example-2/cp-{epoch:04d}.ckpt')
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 batch_size = 32
@@ -121,7 +121,7 @@ print("Restored model2, accuracy: {:5.2f}%".format(100 * acc))
 ##
 # example 3 - save manually
 ##
-checkpoint_path = os.path.join(os.path.dirname(__file__), '../../tmp/save-load/example-3/my_checkpoint')
+checkpoint_path = os.path.join(os.path.dirname(__file__), '../../../tmp/save-load/example-3/my_checkpoint')
 
 model.save_weights(checkpoint_path)
 
@@ -136,7 +136,7 @@ print("Restored model3, accuracy: {:5.2f}%".format(100 * acc))
 ##
 # example 4 - save full model
 ##
-checkpoint_path = os.path.join(os.path.dirname(__file__), '../../tmp/save-load/example-4/cp-{epoch:04d}.ckpt')
+checkpoint_path = os.path.join(os.path.dirname(__file__), '../../../tmp/save-load/example-4/cp-{epoch:04d}.ckpt')
 
 model = create_model()
 model.fit(train_images, train_labels, epochs=5)
@@ -155,7 +155,7 @@ print(new_model.predict(test_images).shape)
 ##
 # example 5 - save format
 ##
-checkpoint_path = os.path.join(os.path.dirname(__file__), '../../tmp/save-load/example-5/model.save')
+checkpoint_path = os.path.join(os.path.dirname(__file__), '../../../tmp/save-load/example-5/model.save')
 model = create_model()
 model.fit(train_images, train_labels, epochs=5)
 model.save(checkpoint_path)
@@ -170,7 +170,7 @@ print(new_model.predict(test_images).shape)
 ##
 # example 6 - save in HDF5
 ##
-checkpoint_path = os.path.join(os.path.dirname(__file__), '../../tmp/save-load/example-6/model.h5')
+checkpoint_path = os.path.join(os.path.dirname(__file__), '../../../tmp/save-load/example-6/model.h5')
 
 model = create_model()
 model.fit(train_images, train_labels, epochs=5)

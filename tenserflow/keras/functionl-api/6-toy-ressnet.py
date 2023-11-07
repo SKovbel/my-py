@@ -5,7 +5,7 @@ import keras
 from keras import layers
 from PIL import Image
 
-tmp_dir = os.path.join(os.path.dirname(__file__), '../../tmp/keras-basic')
+tmp_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/keras-basic')
 
 inputs = keras.Input(shape=(32, 32, 3), name="img")
 x = layers.Conv2D(32, 3, activation="relu")(inputs)

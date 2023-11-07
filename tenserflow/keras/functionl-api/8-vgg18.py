@@ -4,7 +4,7 @@ import tensorflow as tf
 import keras
 from keras import layers
 from PIL import Image
-tmp_dir = os.path.join(os.path.dirname(__file__), '../../tmp/keras-basic')
+tmp_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/keras-basic')
 
 def get_classes():
     import requests

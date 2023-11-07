@@ -43,7 +43,7 @@ DEBUG = True
 vocab_size = 15000
 sequence_length = 20
 batch_size = 64
-up_dir = os.path.join(os.path.dirname(__file__), '../../tmp/translation')
+up_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/translation')
 
 # parsing
 def download_and_parsing():
