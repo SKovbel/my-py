@@ -17,7 +17,6 @@ plt.ylabel('Y')
 plt.show()
 
 bins = 10
-#plt.hist([1,2,3,4,5,6,7], bins, facecolor='blue')
 plt.hist(y2, bins, edgecolor='black', facecolor='blue')
 plt.ylabel('Y')
 plt.show()
