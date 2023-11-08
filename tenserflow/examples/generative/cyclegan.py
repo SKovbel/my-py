@@ -12,6 +12,7 @@ import tensorflow_addons as tfa
 import tensorflow_datasets as tfds
 
 up_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/cyclegan')
+checkpoint_filepath = os.path.join(up_dir, 'save/cyclegan_checkpoints.h5')
 
 datasets = tfds.list_builders()
 for dataset in datasets:
@@ -507,25 +508,22 @@ cycle_gan_model.compile(
 )
 # Callbacks
 plotter = GANMonitor()
-checkpoint_filepath = "./model_checkpoints/cyclegan_checkpoints.{epoch:03d}"
 model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_filepath, save_weights_only=True
+    filepath=checkpoint_filepath, save_weights_only=True, save_freq=1
 )
 
-model_path = os.path.join(up_dir, 'cyclegan.save')
-if os.path.exists(model_path):
-    cycle_gan_model = tf.keras.models.load_model(model_path)
-else:
-    # Here we will train the model for just one epoch as each epoch takes around
-    # 7 minutes on a single P100 backed machine.
-    cycle_gan_model.fit(
-        tf.data.Dataset.zip((train_horses, train_zebras)),
-        epochs=1,
-        callbacks=[plotter, model_checkpoint_callback],
-    )
-    cycle_gan_model.save(model_path)
+#if os.path.exists(model_path):
+    #cycle_gan_model = tf.keras.models.load_model(model_path)
+    #cycle_gan_model.summary()
 
-cycle_gan_model.summary()
+# Here we will train the model for just one epoch as each epoch takes around
+# 7 minutes on a single P100 backed machine.
+cycle_gan_model.fit(
+    tf.data.Dataset.zip((train_horses, train_zebras)),
+    epochs=1,
+    callbacks=[plotter, model_checkpoint_callback],
+)
+#cycle_gan_model.save(model_path)
 
 
 archive = keras.utils.get_file(
