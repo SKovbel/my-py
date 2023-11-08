@@ -27,7 +27,6 @@ class App(tk.Tk):
         languages = data.keys()
         popularity = data.values()
 
-
         # create a figure
         figure = Figure(figsize=(6, 4), dpi=100)
 
