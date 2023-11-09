@@ -89,6 +89,7 @@ def show_raw_visualization(data):
         ax.legend([titles[i]])
         format = mdates.DateFormatter("%Y")
         ax.xaxis.set_major_formatter(format)
+
     plt.tight_layout()
     plt.show()
 
