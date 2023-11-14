@@ -9,7 +9,7 @@ b = numpy.array([5,6,7,8])
 print(a0 + b0)
 
 print(numpy.add(a, b))
-print(a - b)
+print(a + b)
 
 print(numpy.subtract(a, b))
 print(a - b)

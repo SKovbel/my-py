@@ -22,8 +22,8 @@ def train_and_predict(train_input_features, train_outputs, prediction_features):
     """   
     svm_classifier = SVC(kernel='linear', C=1)
     svm_classifier.fit(train_input_features, train_outputs)
-    predictions = svm_classifier.predict(prediction_features)
-    return predictions
+        predictions = svm_classifier.predict(prediction_features)
+        return predictions
 
 
 iris = datasets.load_iris()
@@ -61,3 +61,4 @@ def print_3d():
 
 
 print_3d()
+    

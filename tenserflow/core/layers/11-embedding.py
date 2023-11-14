@@ -45,3 +45,22 @@ y = model.predict(x)
 #   [-0.04619465  0.04933066 -0.04071984]]]
 
 print(y)
+
+################## 2
+vectorizer = keras.layers.TextVectorization(
+        max_tokens=5000, 
+        output_mode='int', 
+        output_sequence_length=5)
+
+embdding = keras.layers.Embedding(
+        input_dim=5000, # vocabulary size 
+        output_dim=3, #  Length of output
+        input_length=10) #  Length of input sequences,
+
+vectorizer.adapt(dict.batch(64))
+
+V = vectorizer(x)
+print('vectorizer', V)
+
+E = embdding(V)
+print('embdding', E)

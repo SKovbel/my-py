@@ -1,7 +1,6 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import matplotlib.pyplot as plt
-import re
 import shutil
 import string
 import tensorflow as tf

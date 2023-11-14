@@ -15,7 +15,7 @@ trains=[
     {"inputs": (1, 1), "target": (1 ^ 1)}
 ]
 
-mse = lambda y, t: ((y - t) ** 2).mean()
+mse = lambda y, t: if I
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
 dsigmoid = lambda x: x * (1 - x)
 
