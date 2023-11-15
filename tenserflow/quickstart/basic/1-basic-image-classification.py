@@ -72,6 +72,12 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(10)
 ])
 
+model = tf.keras.Sequential([
+    tf.keras.layers.GlobalMaxPooling2D(),
+    tf.keras.layers.Dropout(rate=0.5),
+    tf.keras.layers.Dense(10)
+])
+
 model.compile(optimizer='adam',
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=['accuracy'])

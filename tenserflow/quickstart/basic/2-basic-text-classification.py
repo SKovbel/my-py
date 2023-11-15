@@ -10,7 +10,7 @@ from tensorflow.keras import losses
 
 from dexa.chart import train
 
-updir=os.path.join(os.path.dirname(__file__),  "../../tmp/aclImdb_v1")
+updir=os.path.join(os.path.dirname(__file__),  "../../../tmp/aclImdb_v1")
 
 batch_size = 32
 seed = 42
