@@ -15,7 +15,7 @@ train_ds = train_ds.shuffle(BATCH_SIZE * 16)
 train_ds = train_ds.ragged_batch(BATCH_SIZE)
 
 batch = next(iter(train_ds.take(1)))
-image_batch = batch["images"][1:10]
+image_batch = batch["images"]
 
 crop_and_resize = keras_cv.layers.RandomCropAndResize(
     target_size=IMAGE_SIZE,
