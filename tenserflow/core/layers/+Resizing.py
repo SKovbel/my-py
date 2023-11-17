@@ -1,26 +1,29 @@
 import numpy as np
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Resizing
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 input_shape = (128, 128, 3) 
 target_height = 64
 target_width = 64
 
-resize = Resizing(height=target_height, width=target_width, input_shape=input_shape)
+rescale = tf.keras.layers.Rescaling(scale=1/255)
+resize = tf.keras.layers.Resizing(height=target_height, width=target_width, input_shape=input_shape)
+dims = tf.keras.layers.Lambda(lambda x: tf.expand_dims(x, axis=0), input_shape=input_shape)
+squeeze = tf.keras.layers.Lambda(lambda x: tf.squeeze(x, axis=0))
 
 image = np.random.randint(0, 256, input_shape, dtype=np.uint8)
-image_normalized = image / 255.0
-print(image_normalized[:1, :1, :5])
-image_normalized = np.expand_dims(image_normalized, axis=0)
-print(image_normalized[:1, :1, :5])
-image_resized = resize(image_normalized)
-print(image_resized[:1, :1, :1])
-image_resized = np.squeeze(image_resized, axis=0)
-print(image_resized[:1, :1, :1])
 
-print(image.shape)
-print(image_resized.shape)
+image_normalized = rescale(image)
+image_normalized = dims(image_normalized)
+image_resized = resize(image_normalized)
+image_resized = squeeze(image_resized)
+
+# another variants
+if False:
+    image_normalized = image / 255.0
+    image_normalized = np.expand_dims(image_normalized, axis=0)
+    image_normalized = rescale(image)
+    image_resized = np.squeeze(image_resized, axis=0)
 
 
 plt.subplot(1, 2, 1)
