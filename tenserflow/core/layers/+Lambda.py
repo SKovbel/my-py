@@ -3,8 +3,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 input_shape = (128, 128, 3) 
-target_height = 64
-target_width = 64
 
 divide = tf.keras.layers.Lambda(lambda x: x/5, input_shape=input_shape)
 
