@@ -1,4 +1,5 @@
 import tensorflow as tf
+# https://www.tensorflow.org/tutorials/customization/basics
 
 class ResnetIdentityBlock(tf.keras.Model):
   def __init__(self, kernel_size, filters):

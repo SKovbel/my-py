@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+# https://www.tensorflow.org/tutorials/customization/basics
 
 class NoBiasDense(tf.keras.layers.Layer):
     # where you can do all input-independent initialization

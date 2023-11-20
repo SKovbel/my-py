@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+# https://www.tensorflow.org/tutorials/customization/custom_layers
 
 ds_tensors = tf.data.Dataset.from_tensor_slices([1, 2, 3, 4, 5, 6])
 print(np.array([element.numpy() for element in ds_tensors]))

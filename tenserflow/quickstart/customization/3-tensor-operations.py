@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+# https://www.tensorflow.org/tutorials/customization/custom_layers
 print(tf.math.add(1, 2))
 print(tf.math.add([1, 2], [3, 4]))
 print(tf.math.square(5))
