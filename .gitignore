@@ -2,3 +2,4 @@ var/*
 tmp/*
 big-query/google-keys.json
 **/__pycache__/
+django/.venv/
