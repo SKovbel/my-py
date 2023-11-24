@@ -21,3 +21,16 @@ df_one_hot = pd.DataFrame(one_hot_encoded, columns=feature_names)
 print(categories)
 print(feature_names)
 print(df_one_hot)
+
+
+
+'''
+s = (X_train.dtypes == 'object')
+object_cols = list(s[s].index)
+...
+OH_encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
+OH_cols_train = pd.DataFrame(OH_encoder.fit_transform(X_train[object_cols]))
+...
+X_train = X_train.drop(object_cols, axis=1)
+X_train = pd.concat([X_train, OH_cols_valid], axis=1)
+'''
