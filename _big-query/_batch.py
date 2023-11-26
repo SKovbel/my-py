@@ -12,25 +12,30 @@ client = bigquery.Client()
 limit = 100
 offset = 0
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-local_file_path = os.path.join(script_dir, '../var/stackoverflow_posts.csv')
+dir = os.path.dirname(os.path.abspath(__file__))
+local_file_path = os.path.join(dir, 'stackoverflow_posts.csv')
 
 with open(local_file_path, 'w') as outfile:
 
     while True:
-        query = f"""
+        print(offset)
+        query = """
         SELECT *
         FROM `bigquery-public-data.stackoverflow.stackoverflow_posts`
-        LIMIT {limit}
-        OFFSET {offset}
+        LIMIT @limit
+        OFFSET @offset
         """
 
-        print(query)
+        query_job = client.query(query, job_config=bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter("limit", "INT64", limit),
+                bigquery.ScalarQueryParameter("offset", "INT64", offset)
+            ]
+        ))
 
-        query_job = client.query(query)
         result = query_job.result()
         offset += limit
-
+        
         for row in query_job:
             outfile.write(','.join(map(str, row)) + '\n')
 
