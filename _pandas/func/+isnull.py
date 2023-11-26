@@ -7,5 +7,6 @@ data = {'Name': ['Alice', 'Bob', 'Charlie', None, 'Eva'],
 
 df = pd.DataFrame(data)
 
+print(df)
 print(df.isnull())
 print(df.isnull().sum())
