@@ -30,8 +30,7 @@ query_job = client.query(query, job_config=bigquery.QueryJobConfig(
 ))
 
 result = query_job.result()
-i = 0
-rides_per_year_result = query_job.to_dataframe() # Your code goes here
+rides_df = query_job.to_dataframe() # Your code goes here
 
 for row in query_job:
     print(row)
