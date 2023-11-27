@@ -1,9 +1,6 @@
 desktop.ini
-
 var/*
 tmp/*
 big-query/google-keys.json
 **/__pycache__/
 **/.venv/
-_django/helloworld/
-_django/msdocs-python-django-webapp-quickstart/
