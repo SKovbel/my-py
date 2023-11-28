@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
+from tensorflow.keras import activations
 
 v = np.arange(-20, 20, 1).astype(float)
 x = np.array([v])
@@ -18,7 +19,7 @@ print('softsign:', keras.layers.Activation('softsign')(x))
 print('hard_sigmoid:', keras.layers.Activation('hard_sigmoid')(x))
 
 print('linear:', keras.layers.Activation('linear')(x))
-print('relu:', keras.layers.Activation('relu')(x))
+print('relu:', keras.layers.Activation(activations.relu)(x))
 print('elu:', keras.layers.Activation('elu')(x))
 print('selu:', keras.layers.Activation('selu')(x))
 print('gelu:', keras.layers.Activation('gelu')(x))
@@ -42,13 +43,13 @@ fig, axs = plt.subplots(2, 2, figsize=(10, 8))
 for i, f in enumerate(['sigmoid', 'tanh', 'softmax', 'softsign', 'hard_sigmoid']):
     process(axs[0, 0], f, x)
 
-for i, f in enumerate(['sigmoid', 'softplus', 'swish']):
+for i, f in enumerate(['sigmoid', 'softplus', 'swish', 'mish']):
     process(axs[0, 1], f, x)
 
 for i, f in enumerate(['linear', 'relu', 'elu', 'selu', 'gelu']):
     process(axs[1, 0], f, x)
 
-for i, f in enumerate(['exponential', 'mish']):
+for i, f in enumerate(['exponential']):
     process(axs[1, 1], f, x)
 
 plt.legend()
