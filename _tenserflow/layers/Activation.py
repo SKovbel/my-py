@@ -38,7 +38,8 @@ def process(ax, f, x):
     ax.plot(x, y)
     ax.set_title(f)
     print(f, '-', y)
-
+    
+# todo end charts
 fig, axs = plt.subplots(2, 2)
 process(axs[0, 0], 'sigmoid', x)
 process(axs[0, 0], 'linear', x)
