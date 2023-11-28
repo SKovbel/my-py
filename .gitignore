@@ -4,3 +4,4 @@ tmp/*
 big-query/google-keys.json
 **/__pycache__/
 **/.venv/
+_django/dexa-net/db.sqlite3
