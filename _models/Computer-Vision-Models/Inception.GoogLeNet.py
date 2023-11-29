@@ -1,0 +1,1 @@
+# Famous for its inception module, which uses multiple filter sizes within the same layer.
