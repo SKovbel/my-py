@@ -15,3 +15,5 @@ tf_agents
 opencv-contrib-python
 ipython
 gym
+gym[atari]
+baselines
