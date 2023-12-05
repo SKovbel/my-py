@@ -11,3 +11,7 @@ flask
 transformers
 openai
 sentencepiece
+tf_agents
+opencv-contrib-python
+ipython
+gym

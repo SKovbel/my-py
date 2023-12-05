@@ -1,5 +1,5 @@
 '''
-MEstimateEncoder is not a built-in encoder in scikit-learn or pandas as of my last knowledge update in January 2022.
+MEstimateEncoder is not a built-in encoder in scikit-learn or pandas as of tictactoe last knowledge update in January 2022.
 However, there is an encoder called TargetEncoder that is commonly used for encoding categorical variables based on the mean 
     of the target variable.
 pip install category_encoders
