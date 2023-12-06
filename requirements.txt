@@ -15,5 +15,10 @@ tf_agents
 opencv-contrib-python
 ipython
 gym
-gym[atari]
-baselines
+opencv-python
+#gym[atari]
+#baselines
+xvfbwrapper
+tf-agents[reverb]
+pyvirtualdisplay
+imageio
