@@ -16,12 +16,8 @@ batch = next(iter(train_ds.take(1)))
 original = batch["images"]
 
 # Create a RandomCutout layer
-# "horizontal", "vertical", or "horizontal_and_vertical" or skip.
 model = keras_cv.layers.RandomRotation(factor=0.10)
-
 modified = model(original)
-
-keras_cv.visualization.plot_image_gallery(original, rows=3, cols=3, value_range=(0, 255))
-keras_cv.visualization.plot_image_gallery(modified, rows=3, cols=3, value_range=(0, 255))
+plt.subplot(121);plt.imshow(original)
+plt.subplot(122);plt.imshow(modified)
 plt.show()
-
