@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, Model
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 
 class EngineDenseRL:
@@ -28,8 +29,17 @@ class EngineDenseRL:
             layers.Normalization(),
             layers.Dense(9, activation='sigmoid')
         ])
+
         self.model.compile(optimizer='adam', loss='mse')   # binary_crossentropy
         self.model.summary()
+
+        checkpoint_filepath = 'model_checkpoint.h5'
+        self.checkpoint_callback = ModelCheckpoint(
+            filepath=checkpoint_filepath,
+            save_weights_only=False,  # Set to True if you only want to save the model weights
+            save_freq='epoch',  # Set to 'epoch' to save at the end of every epoch
+            period=100  # Save every 100 epochs
+        )
 
     def init(self, game):
         pass
@@ -67,7 +77,9 @@ class EngineDenseRL:
             turn = -turn
 
         #early_stopping = EarlyStopping(monitor='loss', patience=3, restore_best_weights=True)
-        self.model.fit(np.array(timeseries), np.array(targets), epochs=self.EPOCHS - runs, verbose=0)#, callbacks=[early_stopping])
+        self.model.fit(np.array(timeseries), np.array(targets), epochs=self.EPOCHS - runs, verbose=0)
+                       #callbacks=[self.checkpoint_callback]
+                       #, callbacks=[early_stopping])
 
     def check_uniq(self, game):
         if self.unique:

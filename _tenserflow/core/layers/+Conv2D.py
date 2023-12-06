@@ -3,6 +3,10 @@ from tensorflow import keras
 
 model = keras.Sequential([
     keras.layers.Conv2D(2, 2, strides=(1, 1), padding='valid', activation='relu', input_shape=(3, 3, 1), kernel_initializer=keras.initializers.Ones())
+    #keras.layers.Conv2D(filters=2, kernel_size=2, strides=(1, 1), padding='valid', activation='relu', input_shape=(3, 3, 1),
+    #                    kernel_initializer=keras.initializers.Ones())
+    # keras.layers.Conv2D(filters=2, kernel_size=(2,2), strides=(1, 1), padding='valid', activation='relu', input_shape=(3, 3, 1),
+    #                    kernel_initializer=keras.initializers.Ones())
 ])
 
 x = tf.constant([
@@ -26,3 +30,5 @@ print(x)
 #   [[24, 24], [28, 28]]
 # ]
 print(y)
+
+

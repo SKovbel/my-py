@@ -16,8 +16,7 @@ batch = next(iter(train_ds.take(1)))
 original = batch["images"]
 
 # Create a RandomCutout layer
-# "horizontal", "vertical", or "horizontal_and_vertical" or skip.
-model = keras_cv.layers.RandomFlip(mode="horizontal_and_vertical")
+model = keras_cv.layers.RandomContrast(0.5)
 
 modified = model(original)
 

@@ -4,6 +4,7 @@ category_encoders
 matplotlib
 seaborn
 tensorflow
+keras_cv
 scikit-learn
 django-debug-toolbar
 torch
@@ -16,9 +17,12 @@ opencv-contrib-python
 ipython
 gym
 opencv-python
-#gym[atari]
-#baselines
-xvfbwrapper
-tf-agents[reverb]
-pyvirtualdisplay
 imageio
+resource
+python-resources
+tensorflow-datasets
+# xvfbwrapper
+# gym[atari]
+# baselines
+# tf-agents[reverb]
+# pyvirtualdisplay

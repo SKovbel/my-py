@@ -9,8 +9,8 @@ game = TicTacToe()
 stats = Stats()
 engines = [
     EngineMinMiax('EngineMinMiax', max_depth=5),
-    # EngineDenseRL('EngineDenseRL', unique=False),
-    EngineDenseDQN('EngineDenseDQN', unique=True)
+    EngineDenseRL('EngineDenseRL', unique=False),
+    #EngineDenseDQN('EngineDenseDQN', unique=True)
 ]
 
 for game_num in range(1, 2000):
