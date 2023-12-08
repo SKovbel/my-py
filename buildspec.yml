@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Installing dependencies"
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - echo "Running migrations"
+      - python manage.py migrate
+      - echo "Running tests"
+      - python manage.py test
+
+  post_build:
+    commands:
+      - echo "Build completed successfully"
+
+artifacts:
+  files: '**/*'
+  discard-paths: yes
