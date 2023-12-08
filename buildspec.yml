@@ -9,9 +9,9 @@ phases:
   build:
     commands:
       - echo "Running migrations"
-      - python manage.py migrate
+      - python _django/dexa-net/manage.py migrate
       - echo "Running tests"
-      - python manage.py test
+      - python _django/dexa-net/manage.py test
 
   post_build:
     commands:
