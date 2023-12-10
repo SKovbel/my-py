@@ -12,3 +12,5 @@ ax.set_xlim([-180, 180])
 ax.set_ylim([-90, 90])
 
 plt.show()
+
+map2 = folium.Map(location=[35,136], tiles='cartodbpositron', zoom_start=5)
