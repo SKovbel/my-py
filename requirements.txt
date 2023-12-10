@@ -26,3 +26,6 @@ tensorflow-datasets
 # baselines
 # tf-agents[reverb]
 # pyvirtualdisplay
+geopandas
+learntools
+folium
