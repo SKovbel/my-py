@@ -1,3 +1,4 @@
+import pandas as pd
 import geopandas as gpd
 #full_data = gpd.read_file("../input/geospatial-learn-course-data/DEC_lands/DEC_lands/DEC_lands.shp")
 
