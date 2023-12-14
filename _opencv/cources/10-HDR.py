@@ -7,6 +7,11 @@ import matplotlib.pyplot as plt
 from zipfile import ZipFile
 from urllib.request import urlretrieve
 
+DIR = os.path.join(os.getcwd(), f"../../tmp/opencv/10")
+URL = r"https://www.dropbox.com/s/qa1hsyxt66pvj02/opencv_bootcamp_assets_NB10.zip?dl=1"
+ZIP = f"opencv_bootcamp_assets_NB11.zip"
+path = lambda path_name: os.path.join(DIR, path_name)
+
 
 def download_and_unzip(url, save_path):
     print(f"Downloading and extracting assests....", end="")
@@ -24,17 +29,13 @@ def download_and_unzip(url, save_path):
 
     except Exception as e:
         print("\nInvalid file.", e)
-URL = r"https://www.dropbox.com/s/qa1hsyxt66pvj02/opencv_bootcamp_assets_NB10.zip?dl=1"
 
-dir = os.path.join(os.getcwd(), f"../../tmp/opencv/10")
-if not os.path.exists(dir):
-    os.mkdir(dir)
-
-asset_zip_path = os.path.join(dir, f"opencv_bootcamp_assets_NB9.zip")
 
 # Download if assest ZIP does not exists.
-if not os.path.exists(asset_zip_path):
-    download_and_unzip(URL, asset_zip_path)
+if not os.path.exists(path(ZIP)):
+    os.makedirs(DIR, exist_ok=True)
+    download_and_unzip(URL, path(ZIP))
+
 
 def readImagesAndTimes():
     # List of file names
@@ -46,11 +47,13 @@ def readImagesAndTimes():
     # Read images
     images = []
     for filename in filenames:
-        im = cv2.imread(os.path.join(dir, filename))
+        print(path(filename))
+        im = cv2.imread(path(filename))
         im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
         images.append(im)
 
     return images, times
+
 
 # Read images and exposure times
 images, times = readImagesAndTimes()
@@ -86,15 +89,19 @@ hdrDebevec = mergeDebevec.process(images, times, responseDebevec)
 tonemapDrago = cv2.createTonemapDrago(1.0, 0.7)
 ldrDrago = tonemapDrago.process(hdrDebevec)
 ldrDrago = 3 * ldrDrago
-plt.figure(figsize=(20, 10));plt.imshow(np.clip(ldrDrago, 0, 1));plt.axis("off")
-cv2.imwrite(os.path.join(dir, "ldr-Drago.jpg"), ldrDrago * 255)
+plt.figure(figsize=(20, 10));
+plt.imshow(np.clip(ldrDrago, 0, 1));
+plt.axis("off")
+cv2.imwrite(path("ldr-Drago.jpg"), ldrDrago * 255)
 print("saved ldr-Drago.jpg")
 
 print("Tonemaping using Reinhard's method ... ")
 tonemapReinhard = cv2.createTonemapReinhard(1.5, 0, 0, 0)
 ldrReinhard = tonemapReinhard.process(hdrDebevec)
-plt.figure(figsize=(20, 10));plt.imshow(np.clip(ldrReinhard, 0, 1));plt.axis("off")
-cv2.imwrite(os.path.join(dir, "ldr-Reinhard.jpg"), ldrReinhard * 255)
+plt.figure(figsize=(20, 10));
+plt.imshow(np.clip(ldrReinhard, 0, 1));
+plt.axis("off")
+cv2.imwrite(path("ldr-Reinhard.jpg"), ldrReinhard * 255)
 print("saved ldr-Reinhard.jpg")
 
 # Tonemap using Mantiuk's method to obtain 24-bit color image
@@ -102,6 +109,8 @@ print("Tonemaping using Mantiuk's method ... ")
 tonemapMantiuk = cv2.createTonemapMantiuk(2.2, 0.85, 1.2)
 ldrMantiuk = tonemapMantiuk.process(hdrDebevec)
 ldrMantiuk = 3 * ldrMantiuk
-plt.figure(figsize=(20, 10));plt.imshow(np.clip(ldrMantiuk, 0, 1));plt.axis("off")
-cv2.imwrite(os.path.join(dir, "ldr-Mantiuk.jpg"), ldrMantiuk * 255)
+plt.figure(figsize=(20, 10));
+plt.imshow(np.clip(ldrMantiuk, 0, 1));
+plt.axis("off")
+cv2.imwrite(path("ldr-Mantiuk.jpg"), ldrMantiuk * 255)
 print("saved ldr-Mantiuk.jpg")
