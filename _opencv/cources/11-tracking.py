@@ -15,34 +15,31 @@ from matplotlib.animation import FuncAnimation
 from IPython.display import YouTubeVideo, display, HTML
 from base64 import b64encode
 
-path = lambda name: os.path.join(DIR, name)
-
 DIR = os.path.join(os.getcwd(), f"../../tmp/opencv/11")
+path = lambda name: os.path.join(DIR, name)
 URL = r"https://www.dropbox.com/s/ld535c8e0vueq6x/opencv_bootcamp_assets_NB11.zip?dl=1"
 ZIP = path(f"opencv_bootcamp_assets_NB11.zip")
 
 
-def download_and_unzip(url, save_path):
-    print(f"Downloading and extracting assests....", end="")
+def unzip(file_path):
+    # Extracting zip file using the zipfile package.
+    with ZipFile(file_path) as z:
+        # Extract ZIP file contents in the same directory.
+        z.extractall(os.path.split(file_path)[0])
+    print("Unzipped", file_path)
 
-    # Downloading zip file using urllib package.
+
+def download(url, save_path):
     urlretrieve(url, save_path)
-
-    try:
-        # Extracting zip file using the zipfile package.
-        with ZipFile(save_path) as z:
-            # Extract ZIP file contents in the same directory.
-            z.extractall(os.path.split(save_path)[0])
-
-        print("Done")
-
-    except Exception as e:
-        print("\nInvalid file.", e)
 
 
 if not os.path.exists(ZIP):
+    print(f"Downloading and extracting assests....")
     os.makedirs(DIR, exist_ok=True)
-    download_and_unzip(URL, ZIP)
+    download(URL, ZIP)
+    unzip(ZIP)
+    unzip(ZIP1)
+    unzip(ZIP2)
 
 # Start
 '''
@@ -131,7 +128,7 @@ else:
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-video_output_file_name = "race_car-" + tracker_type + ".mp4"
+video_output_file_name = path(f"race_car-{tracker_type}.mp4")
 video_out = cv2.VideoWriter(video_output_file_name, cv2.VideoWriter_fourcc(*"XVID"), 10, (width, height))
 
 video_output_file_name
@@ -148,3 +145,33 @@ displayRectangle(frame, bbox)
 ok = tracker.init(frame, bbox)
 
 # 6. Read frame and Track Object
+while True:
+    ok, frame = video.read()
+
+    if not ok:
+        break
+
+    # Start timer
+    timer = cv2.getTickCount()
+
+    # Update tracker
+    ok, bbox = tracker.update(frame)
+
+    # Calculate Frames per second (FPS)
+    fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
+
+    # Draw bounding box
+    if ok:
+        drawRectangle(frame, bbox)
+    else:
+        drawText(frame, "Tracking failure detected", (80, 140), (0, 0, 255))
+
+    # Display Info
+    drawText(frame, tracker_type + " Tracker", (80, 60))
+    drawText(frame, "FPS : " + str(int(fps)), (80, 100))
+
+    # Write frame to video
+    video_out.write(frame)
+
+video.release()
+video_out.release()
