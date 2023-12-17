@@ -1,3 +1,5 @@
+# The Inception architecture uses multiple filters at each layer, allowing the model to capture information at different scales.
+# InceptionV3 is a popular variant.
 from tensorflow.keras.applications import InceptionV3
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.keras.preprocessing import image

@@ -1,3 +1,5 @@
+#  ResNet is known for its deep architecture with residual blocks, which helps mitigate the vanishing gradient problem.
+#  It has variants like ResNet-50, ResNet-101, etc.
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions

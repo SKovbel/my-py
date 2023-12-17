@@ -50,7 +50,7 @@ modelFile = path("models/ssd_mobilenet_v2_coco_2018_03_29/frozen_inference_graph
 configFile = path("models/ssd_mobilenet_v2_coco_2018_03_29.pbtxt")
 net = cv2.dnn.readNetFromTensorflow(modelFile, configFile)
 
-
+    
 # 3. Detect object
 # For ach file in the directory
 def detect_objects(net, im, dim=300):
@@ -76,6 +76,7 @@ def display_text(im, text, x, y):
 def display_objects(im, objects, threshold=0.25):
     rows = im.shape[0]
     cols = im.shape[1]
+    print('Objects:', objects, objects.shape)
 
     # For every Detected Object
     for i in range(objects.shape[2]):
