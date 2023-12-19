@@ -1,30 +1,28 @@
 import snowflake.snowpark as snowpark
-from snowflake.snowpark.functions import col
+from snowflake.snowpark.functions import col, concat_ws, lit
 
 def main(session: snowpark.Session): 
-    # Your code goes here, inside the "main" handler.
-    table1_name = 'snowflake_sample_data.TPCDS_SF100TCL.CUSTOMER'  # Replace with your actual table name
-    table2_name = 'snowflake_sample_data.TPCDS_SF100TCL.CUSTOMER_ADRESS'  # Replace with your actual table name
-    join_column = 'common_column'  # Replace with the column you want to join on
+    dataframe1 = session.table('snowflake_sample_data.TPCDS_SF100TCL.CUSTOMER')#.select("*").alias('CUSTOMER')
+    dataframe2 = session.table('snowflake_sample_data.TPCDS_SF100TCL.CUSTOMER_ADDRESS')#.select("*").alias('ADDRESS')
 
-    # Create DataFrames for the specified tables
-    dataframe1 = session.table(table1_name)
-    dataframe2 = session.table(table2_name)
-
-    # Complex SQL query with joins, filters, and selections
-    complex_query_result = (
+    complex_query_result = session.create_dataframe(
         dataframe1
-        .join(dataframe2, col(join_column))
-        .filter(col("some_column") > 100)
-        .select(col("table1_column"), col("table2_column"))
-        .orderBy(col("table1_column").asc())
+        .join(dataframe2, col('CA_ADDRESS_SK') == col('C_CURRENT_ADDR_SK'))
+        .filter(col("C_SALUTATION") == 'Dr.')
+        .select(col("C_CUSTOMER_SK").alias("Customer_Id"),
+                col("C_FIRST_NAME").alias("Customer_First_Name"),
+                col("C_LAST_NAME").alias("Customer_Last_Name"),
+                concat_ws(lit(','),
+                    col("CA_STREET_NUMBER"),
+                    col("CA_SUITE_NUMBER"),
+                    col("CA_CITY"),
+                    col("CA_STATE"),
+                    col("CA_ZIP"),
+                    col("CA_COUNTRY")
+                ).alias("Customer_Address"))
+        .orderBy(col("C_FIRST_NAME").asc())
         .limit(100)
-        .execute()
+        .collect()
     )
-C_CURRENT_ADDR_SK
 
-    # Print the query result
-    complex_query_result.show()
-
-    # Return the result (optional, for display in the Results tab)
     return complex_query_result

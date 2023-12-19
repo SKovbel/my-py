@@ -12,15 +12,14 @@ import tensorflow_datasets as tfds
 
 DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../tmp/cv-retinanet")
 path = lambda name: os.path.join(DIR, name)
-os.makedirs(DIR, exist_ok=True)
 
-url = "https://github.com/srihari-humbarwadi/datasets/releases/download/v0.1.0/data.zip"
-filename = path("data.zip")
-keras.utils.get_file(filename, url)
-
-
-with zipfile.ZipFile(path("data.zip"), "r") as z_fp:
-    z_fp.extractall(path("./"))
+if not os.path.isdir(path("data")):
+    os.makedirs(DIR, exist_ok=True)
+    url = "https://github.com/srihari-humbarwadi/datasets/releases/download/v0.1.0/data.zip"
+    filename = path("data.zip")
+    keras.utils.get_file(filename, url, cache_dir=DIR, cache_subdir=DIR)
+    with zipfile.ZipFile(path("data.zip"), "r") as z_fp:
+        z_fp.extractall(path("./"))
 
 
 def swap_xy(boxes):
@@ -708,7 +707,7 @@ callbacks_list = [
 
 
 (train_dataset, val_dataset), dataset_info = tfds.load(
-    "coco/2017", split=["train", "validation"], with_info=True, data_dir="data"
+    "coco/2017", split=["train", "validation"], with_info=True, data_dir=path("data")
 )
 
 
