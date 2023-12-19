@@ -204,3 +204,9 @@ image, label = next(iter(train_ds))
 _ = plt.imshow(image)
 _ = plt.title(get_label_name(label))
 plt.show()
+
+
+
+filenames = [filename]
+raw_dataset = tf.data.TFRecordDataset(filenames)
+print(raw_dataset)

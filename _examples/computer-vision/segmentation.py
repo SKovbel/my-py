@@ -113,7 +113,7 @@ def unet_model(output_channels:int):
         x = up(x)
         concat = tf.keras.layers.Concatenate()
         x = concat([x, skip])
-
+omm
     # This is the last layer of the model
     last = tf.keras.layers.Conv2DTranspose(
         filters=output_channels, kernel_size=3, strides=2,
