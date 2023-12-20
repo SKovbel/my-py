@@ -14,7 +14,7 @@ DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'keys.json')
 path = lambda name: os.path.join(s.getcwd(), name)
 path = lambda name: os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
 
-$ 5
+# 5
 for dir in os.listdir(DIR):
     dir = os.path.join(DIR, dir)
     if os.path.isdir(dir):
