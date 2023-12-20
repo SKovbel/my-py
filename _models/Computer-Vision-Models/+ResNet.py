@@ -1,3 +1,4 @@
+# https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md
 #  ResNet is known for its deep architecture with residual blocks, which helps mitigate the vanishing gradient problem.
 #  It has variants like ResNet-50, ResNet-101, etc.
 import tensorflow as tf

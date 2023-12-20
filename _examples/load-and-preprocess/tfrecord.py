@@ -1,3 +1,4 @@
+# https://www.tensorflow.org/tutorials/load_data/tfrecord
 import os
 import numpy as np
 import tensorflow as tf
