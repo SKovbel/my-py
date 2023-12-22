@@ -1,3 +1,4 @@
+absl-py
 numpy
 pandas
 category_encoders
@@ -31,4 +32,5 @@ learntools
 folium
 geopy
 pytube
-tensorflow-examples
+#tensorflow-examples
+#tflite_model_maker
