@@ -34,3 +34,5 @@ geopy
 pytube
 #tensorflow-examples
 #tflite_model_maker
+torchvision
+pycocotools
