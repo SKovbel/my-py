@@ -1,11 +1,13 @@
 # https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]=""
-import utils
-import matplotlib.pyplot as plt
-from torchvision.io import read_image
-import torch
+import sys
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "cv_utils"))
+
+os.environ["CUDA_VISIBLE_DEVICES"]=""
+import matplotlib.pyplot as plt
+import torch
+from cv_utils import utils
 from torchvision.io import read_image
 from torchvision.ops.boxes import masks_to_boxes
 from torchvision import tv_tensors
@@ -16,7 +18,7 @@ import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 from torchvision.transforms import v2 as T
-from engine import train_one_epoch, evaluate
+from cv_utils.engine import train_one_epoch, evaluate
 from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 
 
