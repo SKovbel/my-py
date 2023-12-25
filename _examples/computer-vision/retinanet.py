@@ -10,7 +10,7 @@ from tensorflow import keras
 import matplotlib.pyplot as plt
 import tensorflow_datasets as tfds
 
-DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../tmp/cv-retinanet")
+DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../tmp/cv-train-retinanet")
 path = lambda name: os.path.join(DIR, name)
 
 if not os.path.isdir(path("data")):
