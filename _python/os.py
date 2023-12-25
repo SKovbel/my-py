@@ -19,3 +19,7 @@ for dir in os.listdir(DIR):
     dir = os.path.join(DIR, dir)
     if os.path.isdir(dir):
         pass
+
+
+#
+os.makedirs(DIR, exist_ok=True)

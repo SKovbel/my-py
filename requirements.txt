@@ -38,4 +38,6 @@ torchvision
 pycocotools
 utils
 onnx
+youtube-dl==2021.12.17
+pafy
 
