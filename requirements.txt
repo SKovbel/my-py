@@ -1,3 +1,5 @@
+# --use-deprecated=legacy-resolver
+pip
 absl-py
 numpy
 pandas
@@ -38,6 +40,10 @@ torchvision
 pycocotools
 utils
 onnx
-youtube-dl==2021.12.17
+youtube-dl
 pafy
-
+split-folders
+albumentations
+setuptools
+google-colab
+termios

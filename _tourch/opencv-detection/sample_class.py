@@ -25,7 +25,7 @@ class ObjectDetectionPipeline:
         if torch.cuda.is_available():
             self.model = torch.load('NVIDIA/DeepLearningExamples:torchhub',  map_location=torch.device('cuda'))
         else:
-            self.model = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub',
+            self.model = torch.load('NVIDIA/DeepLearningExamples:torchhub',
                                 'nvidia_ssd', map_location=torch.device('cpu')).eval().to(device)
 
         #self.model = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_ssd', map_location={'cuda:0': 'cpu'}).eval().to(device)
