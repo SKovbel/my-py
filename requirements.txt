@@ -46,4 +46,3 @@ split-folders
 albumentations
 setuptools
 google-colab
-termios

@@ -49,16 +49,13 @@ class Trainer:
 
         progressbar = trange(self.epochs, desc="Progress")
         for _ in progressbar:
-            # Epoch counter
             self.epoch += 1
-            # progressbar.set_description(f"Epoch {self.epoch}")
+            progressbar.set_description(f"Epoch {self.epoch}")
 
-            # Training block
             self.train_epoch()
-            print(f'\nEpoch {self.epoch}: Train loss: {self.results["train_loss"][-1]}')
-
-            # Save checkpoints every epoch
             utils.save_model(self.model, self.save_dir, self.epoch)
+
+            print(f'\nEpoch {self.epoch}: Train loss: {self.results["train_loss"][-1]}')
 
         time_elapsed = time.time() - start_time
         print('\n')

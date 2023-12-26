@@ -2,25 +2,26 @@
 Contains various utility functions for PyTorch model training, saving and result display.
 """
 
+import os
+import cv2
 import torch
 import torchvision
 import numpy as np
 import torch.nn.functional as F
 import torch.nn as nn
 import matplotlib.pyplot as plt
-
+from data import path, DIR_MODEL
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
-
+from glob import glob
 
 # Save the model to the target dir
-def save_model(model: torch.nn.Module, target_dir: str, epoch: int):
+def save_model(model: torch.nn.Module, epoch: int):
     """
     Saves a PyTorch model to a target directory.
     """
     # Create target directory
-    target_dir_path = Path(target_dir)
-    target_dir_path.mkdir(parents=True, exist_ok=True)
+    target_dir_path = path(DIR_MODEL, True)
 
     # Create model save path
     check_point_name = f"model_epoch_{epoch}"
@@ -30,6 +31,17 @@ def save_model(model: torch.nn.Module, target_dir: str, epoch: int):
     # print(f"[INFO] Saving model to: {model_save_path}")
     torch.save(obj=model.state_dict(), f=model_save_path)
 
+# Save the model to the target dir
+def load_model():
+    """
+    Saves a PyTorch model to a target directory.
+    """
+    # Create target directory
+    target_dir_path = path([DIR_MODEL, 'model*'])
+    latest_model_path = max(glob(target_dir_path), key=os.path.getctime)
+    if latest_model_path:
+        return torch.load(latest_model_path)
+    return None
 
 # Plot the training curve
 def plot_curve(results: dict, epochs: int):
@@ -108,3 +120,8 @@ def display_images(**images):
         plt.title(name.replace('_', ' ').title(), fontsize=15)
         plt.imshow(image)
     plt.show()
+
+
+# Test
+if __name__ == "__main__":
+    load_model()

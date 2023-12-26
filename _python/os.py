@@ -23,3 +23,12 @@ for dir in os.listdir(DIR):
 
 #
 os.makedirs(DIR, exist_ok=True)
+
+
+#
+DIR_DATA = os.path.join(os.path.dirname(__file__), "../../tmp/torch-cv")
+def path(name, create=False):
+    dir = os.path.join(DIR_DATA, *name) if type(name) is list else os.path.join(DIR_DATA, name)
+    if create:
+        os.makedirs(dir, exist_ok=True)
+    return dir

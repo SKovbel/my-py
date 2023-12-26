@@ -1,11 +1,26 @@
 import os
 import numpy as np
-import torch
+import splitfolders
 import xml.etree.ElementTree as ET
+from PIL import Image
 
-from PIL import Image, ImageDraw, ImageFont
-from torchvision import transforms
+import torch
+import torchvision
 
+DIR_DATA = os.path.join(os.path.dirname(__file__), "../../tmp/torch-cv")
+DIR_IN = 'in'
+DIR_OUT = 'out'
+DIR_SPLIT = 'split'
+DIR_MODEL = 'model'
+
+def path(name, create=False):
+    dir = os.path.join(DIR_DATA, *name) if type(name) is list else os.path.join(DIR_DATA, name)
+    if create:
+        os.makedirs(dir, exist_ok=True)
+    return dir
+
+def split(in_dir, out_dir):
+    splitfolders.ratio(in_dir, output=out_dir, seed=42, ratio=(0.8, 0.1, 0.1))
 
 def get_annotations_boxes_from_xml(dir):
     tree = ET.parse(dir)
@@ -32,14 +47,14 @@ def get_annotations_boxes_from_xml(dir):
 
 
 class FaceMaskDataset(torch.utils.data.Dataset):
-    def __init__(self, root, transforms=None):
-        self.root = root
-        self.transforms = transforms
+    def __init__(self, what, transforms=None):
+        self.root = path([DIR_SPLIT, what], True)
+        self.imgs = list(sorted(os.listdir(path([self.root, 'images']))))
+        self.anns = list(sorted(os.listdir(path([self.root, 'annotations']))))
+        self.img_dir = path([self.root, 'images'])
+        self.ann_dir = path([self.root, 'annotations'])
 
-        self.imgs = list(sorted(os.listdir(os.path.join(root, 'images'))))
-        self.anns = list(sorted(os.listdir(os.path.join(root, 'annotations'))))
-        self.img_dir = os.path.join(root, 'images')
-        self.ann_dir = os.path.join(root, 'annotations')
+        self.transforms = transforms
 
     def __len__(self):
         return len(self.imgs)
@@ -55,12 +70,21 @@ class FaceMaskDataset(torch.utils.data.Dataset):
         labels = torch.LongTensor(labels)
 
         if self.transforms:
-            transformed = self.transforms(image=image, bboxes=boxes, category_ids=labels)
+            pass
+            #image2 = self.transforms(image=np.array(image), bboxes=boxes, category_ids=labels)
 
-        tenn = transforms.ToTensor()
+        tenn = torchvision.transforms.ToTensor()
         image = tenn(image)
-
         return image, boxes, labels
 
     def collate_fn(self, batch):
         return tuple(zip(*batch))
+
+
+# Test
+if __name__ == "__main__":
+    split(path(DIR_IN), path(DIR_SPLIT, True))
+
+    for what in ['train', 'val', 'test']:
+        image_datasets = FaceMaskDataset(what, transforms=None)
+        print(image_datasets[1])
