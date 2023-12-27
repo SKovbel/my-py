@@ -10,10 +10,7 @@ import numpy as np
 import albumentations as A
 
 import torch
-from torchvision.models.detection import FasterRCNN_MobileNet_V3_Large_FPN_Weights, fasterrcnn_mobilenet_v3_large_fpn
 from torch.utils.data import DataLoader
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-
 from model import ModelFastRCNN
 
 # Set the manual seeds
@@ -25,6 +22,8 @@ SET = ['train', 'val', 'test']
 BATCH = 4
 EPOCHS = 30
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+helper = ModelFastRCNN()
 
 # Create data augmentation
 augmentations = [
@@ -40,11 +39,7 @@ dataloaders = {x: DataLoader(datasets[x], batch_size=BATCH, shuffle=True, collat
 dataset_sizes = {x: len(datasets[x]) for x in SET}
 
 #  Create Object Detection Model
-weights = FasterRCNN_MobileNet_V3_Large_FPN_Weights.DEFAULT
-model = fasterrcnn_mobilenet_v3_large_fpn(weights=weights)
-features = model.roi_heads.box_predictor.cls_score.in_features
-model.roi_heads.box_predictor = FastRCNNPredictor(features, 3)
-model = model.to(DEVICE)
+model = helper.create()
 
 ## Model inItialization
 params = [p for p in model.parameters() if p.requires_grad]

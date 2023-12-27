@@ -2,41 +2,30 @@ import os
 from glob import glob
 
 import torch
-
-from torchvision.models.detection import fasterrcnn_mobilenet_v3_large_fpn
-from torchvision.models.detection import FasterRCNN_MobileNet_V3_Large_FPN_Weights
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+import models.model_fast_rcnn as fast_rcnn
 
 from utils import path, DIR_MODEL
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-class ModelFastRCNN:
-    def __init__(self):
-        self.model = None
-
+class Model:
     # Create the model
-    def create(self):
+    def create(self, do_eval=False):
         """
         Create PyTorch model
         """
-        weights = FasterRCNN_MobileNet_V3_Large_FPN_Weights.DEFAULT
-        model = fasterrcnn_mobilenet_v3_large_fpn(weights=weights)
-        features = model.roi_heads.box_predictor.cls_score.in_features
-        model.roi_heads.box_predictor = FastRCNNPredictor(features, 3)
-        model = model.to(DEVICE)
-        return model
-
+        return fast_rcnn.create(do_eval)
+        #return model_yolo.create(do_eval)
 
     # Save the model to the target dir
     def save(self, model: torch.nn.Module, epoch: int):
         """
         Saves a PyTorch model to a target directory.
         """
-        target_dir_path = path(DIR_MODEL, True)
-        check_point_name = f"model_epoch_{epoch}"
-        model_save_path = target_dir_path / check_point_name
-        torch.save(obj=model.state_dict(), f=model_save_path)
+        save_path = path([DIR_MODEL, f"model_epoch_{epoch}"])
+        if os.path.isfile(save_path):
+            os.remove(save_path)
+        torch.save(obj=model.state_dict(), f=save_path)
 
 
     # Load the model
@@ -54,12 +43,11 @@ class ModelFastRCNN:
         model = None
 
         if os.path.isfile(check_point_path):
-            model = self.create()
+            model = self.create(do_eval=False)
             state = torch.load(check_point_path)
             model.load_state_dict(state)
             model.eval()
         elif empty_model:
             model = self.create()
-            model.eval()
 
         return model

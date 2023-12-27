@@ -8,8 +8,9 @@ import utils
 import numpy as np
 
 from tqdm import trange
+from model import ModelFastRCNN
 
-
+helper = ModelFastRCNN()
 class Trainer:
     def __init__(self,
                  model: torch.nn.Module,
@@ -53,7 +54,7 @@ class Trainer:
             progressbar.set_description(f"Epoch {self.epoch}")
 
             self.train_epoch()
-            utils.save_model(self.model, self.save_dir, self.epoch)
+            helper.save(self.model, self.epoch)
 
             print(f'\nEpoch {self.epoch}: Train loss: {self.results["train_loss"][-1]}')
 
