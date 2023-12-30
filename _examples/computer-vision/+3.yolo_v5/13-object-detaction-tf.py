@@ -53,7 +53,7 @@ net = cv2.dnn.readNetFromTensorflow(modelFile, configFile)
     
 # 3. Detect object
 # For ach file in the directory
-def detect_objects(net, im, dim=640):
+def detect_objects(net, im, dim=300):
     blob = cv2.dnn.blobFromImage(im, 1.0, size=(dim, dim), mean=(0, 0, 0), swapRB=True, crop=False)
     net.setInput(blob)
     objects = net.forward()
@@ -100,6 +100,5 @@ def display_objects(im, objects, threshold=0.25):
 
 
 im = cv2.imread(path("images/street.jpg"))
-im = cv2.resize(im, (640, 640))
-objects = detect_objects(net, im, 640)
+objects = detect_objects(net, im)
 display_objects(im, objects)

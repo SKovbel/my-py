@@ -3,6 +3,7 @@ update-alternatives --list python
 sudo apt install python3.12
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 sudo update-alternatives --config python
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
 python -m pip --version
 sudo apt autoremove
@@ -31,3 +32,6 @@ conda install -n yourenvname
 conda activate torch
 conda deactivate
 conda install -c conda-forge google-colab
+
+
+conda create -n p39 python=3.9 anaconda

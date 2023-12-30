@@ -1,0 +1,8 @@
+ultralytics
+jedi
+labelImg
+pyqt5==5.15.2 
+lxml
+pyqtwebengine<5.16
+torchvision
+torch

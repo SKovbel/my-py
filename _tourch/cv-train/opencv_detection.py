@@ -9,7 +9,7 @@ sample_image = path("PennFudanPed/PNGImages/FudanPed00046.png")
 # The Magic:
 net = cv2.dnn.readNetFromONNX(path('onnx'))
 image = cv2.imread(sample_image)
-blob = cv2.dnn.blobFromImage(image, 1.0 / 255, (224, 224), (0, 0, 0), swapRB=True, crop=False)
+blob = cv2.dnn.blobFromImage(image, 1.0 / 255, (384, 384), (0, 0, 0), swapRB=True, crop=False)
 net.setInput(blob)
 preds = net.forward()
 biggest_pred_index = np.array(preds)[0].argmax()

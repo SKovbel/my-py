@@ -1,0 +1,7 @@
+train: 
+ - samples/train/objects
+ - samples/train-a/objects
+val:
+ - samples/val/objects
+nc: 5
+names: ['object']
