@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# https://learnopencv.com/custom-object-detection-training-using-yolov5/
-# https://blog.paperspace.com/train-yolov5-custom-data/
-
 source _source.sh
 
 #rm -rf $DIR_MODEL
@@ -10,7 +7,7 @@ source _source.sh
 
 # Train
 cd $DIR_YOLO
-yolo task=detect mode=train model=yolov8s.pt imgsz=640 data=$DIR_BIN/data.yaml epochs=4000 batch=6 amp=False workers=2 name=$DIR_MODEL
+yolo task=detect mode=train model=yolov8s.pt imgsz=640 data=$DIR_CFG/data.yaml epochs=4000 batch=6 amp=False workers=2 name=$DIR_MODEL
 #yolo task=detect mode=train model=yolov8n.pt imgsz=640 data=$DIR_BIN/data.yaml epochs=10 batch=8 amp=False workers=4  name=$DIR_MODEL \
 #    save=True exist_ok=True lr0=0.01 lrf=0.002 momentum=0.937 weight_decay=0.0005 warmup_epochs=3.0 \
 #    warmup_momentum=0.8 warmup_bias_lr=0.1 box=7.5 cls=0.5 dfl=1.5 pose=12.0 kobj=1.0 label_smoothing=0.1 nbs=32 \
