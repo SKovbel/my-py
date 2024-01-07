@@ -1,0 +1,110 @@
+predictions_hm_tst = model_hm.predict(test_x)
+predictions_hm_trn = model_hm.predict(train_x)
+
+predictions_lr_tst = model_lr.predict(test_x)
+predictions_lr_trn = model_lr.predict(train_x)
+
+predictions_mlp_tst = model_mlp.predict(test_x)
+predictions_mlp_trn = model_mlp.predict(train_x)
+
+predictions_tf_lr_tst = np.reshape(model_tf_lr.predict(test_x), (-1))
+predictions_tf_lr_trn = np.reshape(model_tf_lr.predict(train_x), (-1))
+
+predictions_tf_mlr_tst = np.reshape(model_tf_mlr.predict(test_x), (-1))
+predictions_tf_mlr_trn = np.reshape(model_tf_mlr.predict(train_x), (-1))
+
+def percentage_formatter(x, pos):
+    return f'{x:.0f}%'
+
+
+fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(16, 10))
+plt.subplots_adjust(hspace=0.5)
+plt.suptitle(
+    '''Hit predictions, Line width = 2%
+ex. First line is count of predictions with difference not more then 2% from true value
+Second line between 2% and 4%
+    ''')
+
+mul = 20
+bins = 100
+
+diff = np.abs(test_y - predictions_lr_tst) / ((np.abs(test_y) + np.abs(predictions_lr_tst)) / 2) * 100
+axes[0][0].hist(diff, bins=bins)
+axes[0][0].set_xlabel('Difference')
+axes[0][0].set_ylabel('Count')
+axes[0][0].set_title('Test data <Sklearn.LinearRegression>')
+axes[0][0].xaxis.set_major_locator(MultipleLocator(mul))
+axes[0][0].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(train_y - predictions_lr_trn) / ((np.abs(train_y) + np.abs(predictions_lr_trn)) / 2) * 100
+axes[0][1].hist(diff, bins=bins)
+axes[0][1].set_xlabel('Difference')
+axes[0][1].set_ylabel('Count')
+axes[0][1].set_title('Train data <Sklearn.LinearRegression>')
+axes[0][1].xaxis.set_major_locator(MultipleLocator(mul))
+axes[0][1].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(test_y - predictions_mlp_tst) / ((np.abs(test_y) + np.abs(predictions_mlp_tst)) / 2) * 100
+axes[1][0].hist(diff, bins=bins)
+axes[1][0].set_xlabel('Difference')
+axes[1][0].set_ylabel('Count')
+axes[1][0].set_title('Test data <Sklearn.MLPRegressor>')
+axes[1][0].xaxis.set_major_locator(MultipleLocator(mul))
+axes[1][0].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(train_y - predictions_mlp_trn) / ((np.abs(train_y) + np.abs(predictions_mlp_trn)) / 2) * 100
+axes[1][1].hist(diff, bins=bins)
+axes[1][1].set_xlabel('Difference')
+axes[1][1].set_ylabel('Count')
+axes[1][1].set_title('Train data <Sklearn.MLPRegressor>')
+axes[1][1].xaxis.set_major_locator(MultipleLocator(mul))
+axes[1][1].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(test_y - predictions_tf_lr_tst) / ((np.abs(test_y) + np.abs(predictions_tf_lr_tst)) / 2) * 100
+axes[2][0].hist(diff, bins=bins)
+axes[2][0].set_xlabel('Difference')
+axes[2][0].set_ylabel('Count')
+axes[2][0].set_title('Test data <TF.LinearRegression>')
+axes[2][0].xaxis.set_major_locator(MultipleLocator(mul))
+axes[2][0].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(train_y - predictions_tf_lr_trn) / ((np.abs(train_y) + np.abs(predictions_tf_lr_trn)) / 2) * 100
+axes[2][1].hist(diff, bins=bins)
+axes[2][1].set_xlabel('Difference')
+axes[2][1].set_ylabel('Count')
+axes[2][1].set_title('Train data <TF.LinearRegression>')
+axes[2][1].xaxis.set_major_locator(MultipleLocator(mul))
+axes[2][1].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(test_y - predictions_tf_mlr_tst) / ((np.abs(test_y) + np.abs(predictions_tf_mlr_tst)) / 2) * 100
+axes[3][0].hist(diff, bins=bins)
+axes[3][0].set_xlabel('Difference')
+axes[3][0].set_ylabel('Count')
+axes[3][0].set_title('Test data <TF.MultiLayerRegression>')
+axes[3][0].xaxis.set_major_locator(MultipleLocator(mul))
+axes[3][0].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(train_y - predictions_tf_mlr_trn) / ((np.abs(train_y) + np.abs(predictions_tf_mlr_trn)) / 2) * 100
+axes[3][1].hist(diff, bins=bins)
+axes[3][1].set_xlabel('Difference')
+axes[3][1].set_ylabel('Count')
+axes[3][1].set_title('Train data <TF.MultiLayerRegression>')
+axes[3][1].xaxis.set_major_locator(MultipleLocator(mul))
+axes[3][1].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+
+diff = np.abs(train_y - predictions_hm_tst) / ((np.abs(train_y) + np.abs(predictions_hm_tst)) / 2) * 100
+axes[4][0].hist(diff, bins=bins)
+axes[4][0].set_xlabel('Difference')
+axes[4][0].set_ylabel('Count')
+axes[4][0].set_title('Train data <TF.MultiLayerRegression>')
+axes[4][0].xaxis.set_major_locator(MultipleLocator(mul))
+axes[4][0].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+diff = np.abs(train_y - predictions_hm_trn) / ((np.abs(train_y) + np.abs(predictions_hm_trn)) / 2) * 100
+axes[4][0].hist(diff, bins=bins)
+axes[4][0].set_xlabel('Difference')
+axes[4][0].set_ylabel('Count')
+axes[4][0].set_title('Train data <TF.MultiLayerRegression>')
+axes[4][0].xaxis.set_major_locator(MultipleLocator(mul))
+axes[4][0].xaxis.set_major_formatter(FuncFormatter(percentage_formatter))

@@ -1,6 +1,0 @@
-This is a simple sentence for pretraining.
-XLNet is a powerful language model.
-Pretraining models requires a large and diverse dataset.
-Use a variety of text sources for better performance.
-The quick brown fox jumps over the lazy dog.
-Natural Language Processing is an exciting field.
