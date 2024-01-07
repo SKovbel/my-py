@@ -1,3 +1,5 @@
+# https://www.tensorflow.org/tutorials/audio/simple_audio
+# Simple audio recognition: Recognizing keywords
 import os
 import pathlib
 
