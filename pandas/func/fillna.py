@@ -9,8 +9,13 @@ data = {'Name': ['Alice', 'Bob', 'Charlie', None, 'Eva'],
         'Salary': [50000, 60000, 75000, None, 80000]}
 
 df = pd.DataFrame(data)
+df2 = df.fillna('X')
 
-print('A', df)
-print('B', df.isnull())
-print('C', df.isnull().sum())
-print('D', df.isnull().sum()[0:1])
+# replace all NA's the value that comes directly after it in the same column, 
+# then replace all the remaining na's with 0
+df3 = df.fillna(method='bfill', axis=0).fillna(0)
+
+print('df\n', df)
+print('df2\n', df2)
+print('df3\n', df3)
+

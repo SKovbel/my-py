@@ -7,10 +7,8 @@ np.random.seed(0)
 data = {'Name': ['Alice', 'Bob', 'Charlie', None, 'Eva'],
         'Age': [25, 30, None, 22, 35],
         'Salary': [50000, 60000, 75000, None, 80000]}
-
 df = pd.DataFrame(data)
 
-print('A', df)
-print('B', df.isnull())
-print('C', df.isnull().sum())
-print('D', df.isnull().sum()[0:1])
+subset_nfl_data = df.loc[:, 'Age':'Salary'].head()
+print('subset_nfl_data\n', subset_nfl_data)
+
