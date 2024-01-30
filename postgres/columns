@@ -1,0 +1,6 @@
+id integer NOT NULL DEFAULT nextval('task_completion_id_seq'::regclass),
+result jsonb,
+was_cancelled boolean NOT NULL,
+created_at timestamp with time zone NOT NULL,
+lead_time double precision,
+last_action character varying(128) COLLATE pg_catalog."default",
