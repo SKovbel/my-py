@@ -24,7 +24,8 @@ CREATE OR ALTER FUNCTION GetEmployeeInfo2(
 RETURNS @ResultTable TABLE (
     EmployeeID INT,
     FirstName NVARCHAR(50),
-    LastName NVARCHAR(50)
+    LastName NVARCHAR(50),
+    Salary DECIMAL(10, 2)
 )
 AS
 BEGIN
@@ -47,8 +48,8 @@ BEGIN
         -- Check conditions and insert into the result table if needed
         IF @FirstName LIKE @Name OR (@AdjustedSalary >= @MinSalary AND @AdjustedSalary <= @MaxSalary)
         BEGIN
-            INSERT INTO @ResultTable (EmployeeID, FirstName, LastName)
-            VALUES (@EmployeeID, @FirstName, @LastName);
+            INSERT INTO @ResultTable (EmployeeID, FirstName, LastName, Salary)
+            VALUES (@EmployeeID, @FirstName, @LastName, @AdjustedSalary);
         END
 
         FETCH NEXT FROM EmployeeCursor INTO @EmployeeID, @FirstName, @LastName, @AdjustedSalary;
@@ -61,17 +62,10 @@ BEGIN
 END;
 
 
-
--- SELECT * FROM GetEmployeeInfo(500, 1500, 'John');
-
-
-
-
-
-
-
--- SELECT * FROM dbo.GetEmployeeInfo(500, 1500, 'John');
-
+/*
+SELECT * FROM GetEmployeeInfo1(500, 1500, 'John');
+SELECT * FROM dbo.GetEmployeeInfo2(500, 1500, 'John');
+*/
 
 
 
