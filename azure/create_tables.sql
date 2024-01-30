@@ -28,4 +28,5 @@ BEGIN
         FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
         FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
     );
+
 END;
