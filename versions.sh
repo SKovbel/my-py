@@ -1,4 +1,7 @@
 # https://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/20/conda/
+# 3.9 - tensorflow + cuda
+# 3.10 pytorch with cuda
+
 update-alternatives --list python
 sudo apt install python3.12
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1

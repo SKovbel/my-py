@@ -1,3 +1,5 @@
+# https://keras.io/examples/generative/cyclegan/
+# horse to zebra
 import os
 import pathlib
 
