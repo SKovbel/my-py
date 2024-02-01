@@ -12,17 +12,6 @@ from tensorflow.keras import layers
 from tokenizers import BertWordPieceTokenizer
 from transformers import BertTokenizer, TFBertModel, BertConfig
 
-33 input_1 (InputLayer)
- input_3 (InputLayer)
- input_2 (InputLayer)
- tf_bert_model (TFBertModel)
- start_logit (Dense)
- end_logit (Dense)
- flatten (Flatten)
- flatten_1 (Flatten)
- activation (Activation)
- activation_1 (Activation)
-        
 max_len = 384
 configuration = BertConfig()  # default parameters and configuration for BERT
 
@@ -31,13 +20,13 @@ tmp_dir = os.path.join(os.path.dirname(__file__), '../../../tmp/bert1')
 
 # Save the slow pretrained tokenizer
 slow_tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-save_path = "bert_base_uncased/"
+save_path = "tmp/bert_base_uncased/"
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 slow_tokenizer.save_pretrained(save_path)
 
 # Load the fast tokenizer from saved file
-tokenizer = BertWordPieceTokenizer("bert_base_uncased/vocab.txt", lowercase=True)
+tokenizer = BertWordPieceTokenizer("tmp/bert_base_uncased/vocab.txt", lowercase=True)
 
 
 train_data_url = "https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json"
