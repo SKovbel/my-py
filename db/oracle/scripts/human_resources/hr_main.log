@@ -1,0 +1,53 @@
+DROP USER hr CASCADE
+          *
+ERROR at line 1:
+ORA-01918: user 'HR' does not exist 
+
+
+CREATE USER hr IDENTIFIED BY Qwertyu8
+            *
+ERROR at line 1:
+ORA-65096: invalid common user or role name 
+
+
+ALTER USER hr DEFAULT TABLESPACE hr
+           *
+ERROR at line 1:
+ORA-01918: user 'HR' does not exist 
+
+
+ALTER USER hr TEMPORARY TABLESPACE hrtmp
+           *
+ERROR at line 1:
+ORA-01918: user 'HR' does not exist 
+
+
+GRANT CREATE SESSION, CREATE VIEW, ALTER SESSION, CREATE SEQUENCE TO hr
+                                                                     *
+ERROR at line 1:
+ORA-01917: user or role 'HR' does not exist 
+
+
+GRANT CREATE SYNONYM, CREATE DATABASE LINK, RESOURCE , UNLIMITED TABLESPACE TO hr
+                                                                               *
+ERROR at line 1:
+ORA-01917: user or role 'HR' does not exist 
+
+
+Enter value for connect_string: system@//localhost:1521/xe
+ERROR:
+ORA-12154: TNS:could not resolve the connect identifier specified 
+
+
+Warning: You are no longer connected to ORACLE.
+SP2-0640: Not connected
+Enter value for connect_string: 
+SP2-0546: User requested Interrupt or EOF detected.
+SP2-0640: Not connected
+SP2-0640: Not connected
+SP2-0310: unable to open file "__SUB__CWD__/human_resources/hr_cre.sql"
+SP2-0310: unable to open file "__SUB__CWD__/human_resources/hr_popul.sql"
+SP2-0310: unable to open file "__SUB__CWD__/human_resources/hr_idx.sql"
+SP2-0310: unable to open file "__SUB__CWD__/human_resources/hr_code.sql"
+SP2-0310: unable to open file "__SUB__CWD__/human_resources/hr_comnt.sql"
+SP2-0310: unable to open file "__SUB__CWD__/human_resources/hr_analz.sql"

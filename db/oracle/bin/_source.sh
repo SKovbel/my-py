@@ -1,6 +1,8 @@
-export ROOT_DIR=./../../../tmp/
-export ORACLE_DIR=$ROOT_DIR/oracle/
-export BACKUP_DIR=$ROOT_DIR/oracle-backup/
+export ROOT_DIR=./../../../tmp
+export ORACLE_DIR=$ROOT_DIR/oracle
+export BACKUP_DIR=$ROOT_DIR/oracle-backup
+
+export SCRIPT_DIR=./../scripts
 
 export DDIR_ORACLE=/opt/oracle
 export DDIR_BACKUP=/opt/backup

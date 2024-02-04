@@ -10,6 +10,7 @@ services:
         - 5500:5500
         - 8500:5520
       volumes:
+        - ./scripts:/opt/scripts
         - ./../../tmp/oracle/scripts:/opt/oracle/scripts/setup
         - ./../../tmp/oracle/dump:/opt/oracle/dump
         - ./../../tmp/oracle/oradata:/opt/oracle/oradata
