@@ -11,6 +11,8 @@ services:
       volumes:
         - ./../../tmp/oracle/scripts:/opt/oracle/scripts/setup
         - ./../../tmp/oracle/dump:/opt/oracle/dump
+        - ./../../tmp/oracle/backup:/opt/oracle/backup
+        - ./../../tmp/oracle/backup_log:/opt/oracle/backup_log
       environment: 
         - "ORACLE_PWD=oracle"
         - "SOURCE_SCHEMA=change-or-delete-me"

@@ -1,0 +1,21 @@
+version: '3'
+services:
+    db:
+      image: container-registry.oracle.com/database/express:latest
+      #image: container-registry.oracle.com/database/enterprise:latest
+      restart: "unless-stopped"
+      ports:
+        - 1521:1521
+        - 2020:8080
+        - 5500:5500
+        - 8500:5520
+      volumes:
+        - ./../../tmp/oracle/scripts:/opt/oracle/scripts/setup
+        - ./../../tmp/oracle/dump:/opt/oracle/dump
+        - ./../../tmp/oracle/oradata:/opt/oracle/oradata
+        - ./../../tmp/oracle-backup:/opt/backup
+      environment: 
+        - "ORACLE_PWD=oracle"
+        - "SOURCE_SCHEMA=change-or-delete-me"
+        - "SOURCE_TABLESPACE=change-or-delete-me"
+        - "EXCLUDE=user"
