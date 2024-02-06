@@ -11,7 +11,7 @@ sudo chown -R ksm:ksm $ORACLE_DIR # @todo - replace with configs
 sudo chown -R ksm:ksm $BACKUP_DIR # @todo - replace with configs
 sudo chmod 777 -R $ORACLE_DIR # @todo - replace with configs
 sudo chmod 777 -R $BACKUP_DIR # @todo - replace with configs
-#sudo chmod 666 /var/run/docker.sock
+sudo chmod 666 /var/run/docker.sock
 
 docker login container-registry.oracle.com
 docker-compose -f oracle.yml up

@@ -8,7 +8,8 @@ services:
         - 1521:1521
         - 2020:8080
         - 5500:5500
-        - 8500:5520
+        - 5501:5501
+        - 5502:5502
       volumes:
         - ./scripts:/opt/scripts
         - ./../../tmp/oracle/scripts:/opt/oracle/scripts/setup
