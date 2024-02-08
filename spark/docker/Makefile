@@ -1,6 +1,7 @@
 ROOT_DIR = $(shell pwd)
-# export WORKING_DIR = $(ROOT_DIR)/../../tmp/spark-data
-export WORKING_DIR = $(ROOT_DIR)/working-data
+
+export WORKING_DIR = $(ROOT_DIR)/../../tmp/spark-working-data
+#export WORKING_DIR = $(ROOT_DIR)/working-data
 
 SPARK_TGZ_URL = https://archive.apache.org/dist/spark/spark-3.5.0/spark-3.5.0-bin-hadoop3.tgz
 
@@ -23,7 +24,7 @@ start-spark:
 	docker-compose -f spark/docker-compose.yml up
 
 probe-spark:
-	python test/test-spark.py
+	python3.10 test/test-spark.py
 
 start: start-spark
 
