@@ -1,0 +1,29 @@
+ACID compliance is a set of database characteristics consisting of Atomicity, Consistency, Isolation, and Durability
+that ensure that database transactions are completed efficiently.
+If a database fulfills the aspects of ACID compliance, it is known to be ACID-compliant.
+
+# https://www.guru99.com/database-normalization.html
+1NF (First Normal Form) Rules
+- Each table cell should contain a single value.
+- Each record needs to be unique.
+(unique/primary key can be complex)
+
+= a single cell must not hold more than one value (atomicity)
+= there must be a primary key for identification
+= no duplicated rows or columns
+= each column must have only one value for each row in the table
+
+2NF (Second Normal Form) Rules
+- Be in 1NF
+- Single Column Primary Key /that does not functionally dependant on any subset of candidate key relation/
+(primary key must be single column key)
+
+3NF (Third Normal Form) Rules
+- Be in 2NF
+- Has no transitive functional dependencies
+
+BCNF
+
+4NF 
+- It should be in the Boyce-Codd Normal Form.
+- And, the table should not have any Multi-valued Dependency.

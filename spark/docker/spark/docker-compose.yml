@@ -1,0 +1,94 @@
+version: '3.7'
+
+services:
+    # Apache Spark is an open-source distributed computing system designed for big data processing and analytics
+    # The Spark Master is responsible for managing the available computing resources (such as CPU cores and memory) 
+    #  across the Spark cluster.
+    # It tracks the status and availability of worker nodes in the cluster,
+    #  including information about the number of available CPU cores and the amount of memory on each node.
+    # The Spark Master schedules applications and jobs submitted by users or client applications to be executed across the cluster.
+    # The Spark Master distributes tasks and partitions of data to worker nodes for execution.
+    # It assigns tasks to worker, minimize data movement and maximize performance by scheduling, data is already available
+    # The Spark Master monitors the health and status of worker nodes, It detects failures and node unavailability, reassign
+    # The Spark Master provides a web-based user interface (UI) for monitoring cluster status, resource utilization, job progress, and other cluster metrics.
+    spark-master:
+        #image: apache/spark:latest
+        command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            args:
+                WORKING_DIR: ${WORKING_DIR}
+        ports:
+            - "9090:8080"
+            - "7077:7077"
+        environment:
+            - SPARK_MODE=master
+            - SPARK_MASTER_HOST=spark-master
+            - SPARK_MASTER_PORT=7077
+        networks:
+            - spark-network
+        volumes:
+            - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
+            - ${WORKING_DIR}/spark:/opt/working_dir/spark  # Mount local directory containing Spark binaries
+
+
+    # Spark worker is a component responsible for executing tasks and processing data within a Spark application
+    # Workers are part of the Spark cluster and are managed by the Spark master.
+    # Spark workers are responsible for executing tasks assigned to them by the Spark master.
+    # Each worker in the cluster runs one or more processes, execute tasks in parallel across available CPU and memory.
+    # JVM instances responsible for executing tasks and managing data partitions.
+    # Executors cache data in memory for efficient processing and leverage CPU parallelism to execute tasks in parallel.
+    # Spark workers process data stored in distributed datasets
+    # Workers read input data from storage systems (e.g., HDFS, S3) or data sources (e.g., Kafka, JDBC)
+    #  and update status information about executor processes.
+    # Fault Tolerance, monitor the health and status of executor processes
+    #  and handle failures by restarting failed tasks or reallocating resources as needed.
+    # Workers communicate with the Spark master to report resource availability, receive task assignments, 
+    # report their status, availability, and resource utilization.
+    # receive instructions and task assignments, provide status updates on task execution
+    spark-worker1:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            args:
+                WORKING_DIR: ${WORKING_DIR}
+        command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+        depends_on: 
+            - spark-master
+        environment:
+            SPARK_MODE: worker
+            SPARK_MASTER_URL: spark://spark-master:7077
+            SPARK_WORKER_CORES: 2
+            SPARK_WORKER_MEMORY: 2g
+        volumes:
+            - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
+            - ${WORKING_DIR}/spark:/opt/working_dir/spark  # Mount local directory containing Spark binaries
+        networks:
+            - spark-network
+
+
+
+    spark-worker2:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            args:
+                WORKING_DIR: ${WORKING_DIR}
+        command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+        depends_on:
+            - spark-master
+        environment:
+            SPARK_MODE: worker
+            SPARK_MASTER_URL: spark://spark-master:7077
+            SPARK_WORKER_CORES: 2
+            SPARK_WORKER_MEMORY: 2g
+        volumes:
+            - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
+            - ${WORKING_DIR}/spark:/opt/working_dir/spark  # Mount local directory containing Spark binaries
+        networks:
+            - spark-network
+
+networks:
+  spark-network:
+    driver: bridge

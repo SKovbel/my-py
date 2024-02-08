@@ -1,0 +1,149 @@
+version: '3.7'
+
+services:
+    # Responsible for storing the metadata of the file system hierarchy in HDFS, including information about files, directories, 
+    #  and their associated data blocks.
+    # Master server that manages the namespace and coordinates access to data stored across the Hadoop cluster.
+    # Hadoop provides a concept called the "Active NameNode" and the "Standby NameNode."
+    # NameNode to perform various namespace operations, such as creating, deleting, or modifying files and directories in HDFS.
+    hadoop-namenode:
+        image: sequenceiq/hadoop-docker:latest
+        container_name: namenode
+        hostname: namenode
+        ports:
+            - "50070:50070"
+            - "8088:8088"
+        volumes:
+            - hadoop_data:/hadoop/dfs/name
+
+    # Worker node in the Hadoop cluster responsible for storing and managing the actual data blocks of files in the 
+    #  Hadoop Distributed File System (HDFS).
+    # Store data in the form of blocks on the local file system of the machine where they are running.
+    # file is written to HDFS, it is divided into fixed-size blocks (typically 128 MB or 256 MB), 
+    #  and these blocks are distributed across multiple DataNodes in the cluster.
+    # By default, each block is replicated three times (configurable), 
+    #  with two additional copies stored on other DataNodes in the cluster.
+    # DataNodes continuously communicate with each other and with the NameNode to maintain the desired replication 
+    #  factor and handle block replication and deletion 
+    # DataNodes regularly send heartbeats to the NameNode to report their health and availability.
+    # They also send periodic block reports to the NameNode, listing all the blocks they have stored locally and 
+    #  their associated metadata.
+    # When a client reads data from HDFS, it communicates with the nearest DataNode hosting the requested block.
+    # respond to read and write requests from clients, fetching or storing data blocks as necessary.
+    # the NameNode detects the failure through missed heartbeats and replicates the lost data blocks to other DataNodes
+    # HDFS automatically rebalances data distribution across the cluster to ensure even utilization of storage capacity.
+    hadoop-datanode1:
+        image: sequenceiq/hadoop-docker:latest
+        container_name: datanode1
+        depends_on:
+            - hadoop-namenode
+        hostname: datanode1
+        environment:
+            SERVICE_PRECONDITION: "namenode:50070"
+        volumes:
+            - hadoop_data:/hadoop/dfs/data
+
+    hadoop-datanode2:
+        image: sequenceiq/hadoop-docker:latest
+        container_name: datanode2
+        depends_on:
+            - hadoop-namenode
+        hostname: datanode2
+        environment:
+            SERVICE_PRECONDITION: "namenode:50070"
+        volumes:
+            - hadoop_data:/hadoop/dfs/data
+
+    # Central repository for storing metadata related to Hive tables, partitions, databases, and other objects.
+    # Information about table schemas, column types, storage location, partition keys, and other metadata attributes.
+    # When a query is submitted to Hive, the Hive Server consults the Hive Metastore to retrieve metadata about 
+    #  the tables and columns involved in the query.
+    # The metadata stored in the Hive Metastore is crucial for query planning and optimization, 
+    #  as it helps Hive Server understand the structure and properties of the data being queried
+    hive-metastore:
+        image: bde2020/hive-metastore-postgresql:latest
+        container_name: hive-metastore
+        environment:
+            - INIT_DB=true
+        ports:
+            - "9083:9083"
+        volumes:
+            - hive_metastore_data:/var/lib/postgresql/data
+
+    # Hive Server is responsible for providing an interface for clients to interact with Hive and execute HiveQL 
+    #  (Hive Query Language) queries.
+    # It acts as a gateway for users and applications to submit queries to Hive for data processing and analysis
+    #  various interfaces for clients, such as JDBC (Java Database Connectivity), ODBC (Open Database), Thrift, and HTTP.
+    hive-server1:
+        image: bde2020/hive-metastore-postgresql:latest
+        container_name: hive-server1
+        depends_on:
+            - hive-metastore
+        environment:
+            - HIVE_METASTORE_URI=thrift://metastore:9083
+        ports:
+            - "10000:10000"
+
+    hive-server2:
+        image: bde2020/hive-metastore-postgresql:latest
+        container_name: hive-server2
+        depends_on:
+            - hive-metastore
+        environment:
+            - HIVE_METASTORE_URI=thrift://metastore:9083
+        ports:
+            - "10001:10000"
+
+    # ZooKeeper is a centralized service for maintaining configuration information, 
+    # providing distributed synchronization, and implementing group services.
+    # coordination service for distributed systems to manage configuration data, naming, synchronization, and group membership.
+    # hierarchical namespace, similar to a file system, where data can be stored and accessed by clients.
+    # protocol called ZAB (ZooKeeper Atomic Broadcast) for maintaining consistency and ensuring that updates are linearizable and durable.
+    # include leader election, distributed locking, configuration management, and maintaining metadata for distributed systems.
+    zookeeper:
+        image: wurstmeister/zookeeper:latest
+        container_name: zookeeper
+        ports:
+            - "2181:2181"
+
+    # Apache Kafka is a distributed streaming platform designed for building real-time data pipelines and applications.
+    # high-throughput, low-latency data ingestion, storage, and processing of large volumes of data in real-time.
+    # distributed commit log architecture, where data is stored in a distributed, fault-tolerant, 
+    # and durable manner across a cluster of servers called brokers.
+    # Producers publish records/messages to Kafka topics, subscribe to topics
+    # fault tolerance, scalability, high availability, and strong durability guarantees.
+    # include real-time event streaming, log aggregation, messaging, stream processing, and data integration.
+    kafka:
+        image: wurstmeister/kafka:latest
+        container_name: kafka
+        ports:
+            - "9092:9092"
+        environment:
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+            KAFKA_DELETE_TOPIC_ENABLE: "true"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock  # Required for scaling Kafka brokers with Docker Compose
+
+    #terraform:
+    #    image: hashicorp/terraform
+    #    volumes:
+    #        - terraform_data:/terraform
+    #    working_dir: /terraform
+    #    command: ["init"]  # "init" can replace with any Terraform command
+
+    #ansible:
+    #    image: ansible/ansible:latest
+    #    command: ansible-playbook -i 'localhost,' -c local /playbook.yml
+    #    build:
+    #        context: ./context/ansible
+    #        dockerfile: Dockerfile
+    #    volumes:
+    #        - ./playbook.yml:/playbook.yml
+volumes:
+    hadoop_data:
+    hive_metastore_data:
+    terraform_data:
