@@ -37,3 +37,5 @@ help:
 	# make stop - stop docker
 	# make start-spark - start docker
 	#
+	# make probe-spark - test spark
+	#

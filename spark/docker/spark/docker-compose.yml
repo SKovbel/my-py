@@ -23,9 +23,11 @@ services:
             - "9090:8080"
             - "7077:7077"
         environment:
-            - SPARK_MODE=master
-            - SPARK_MASTER_HOST=spark-master
-            - SPARK_MASTER_PORT=7077
+            SPARK_MODE: master
+            SPARK_MASTER_HOST: spark-master
+            SPARK_MASTER_PORT: 7077
+            SPARK_WORKER_CORES: 1
+            SPARK_WORKER_MEMORY: 1g
         networks:
             - spark-network
         volumes:
@@ -59,8 +61,8 @@ services:
         environment:
             SPARK_MODE: worker
             SPARK_MASTER_URL: spark://spark-master:7077
-            SPARK_WORKER_CORES: 2
-            SPARK_WORKER_MEMORY: 2g
+            SPARK_WORKER_CORES: 1
+            SPARK_WORKER_MEMORY: 1g
         volumes:
             - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
             - ${WORKING_DIR}/spark:/opt/working_dir/spark  # Mount local directory containing Spark binaries
@@ -81,13 +83,29 @@ services:
         environment:
             SPARK_MODE: worker
             SPARK_MASTER_URL: spark://spark-master:7077
-            SPARK_WORKER_CORES: 2
-            SPARK_WORKER_MEMORY: 2g
+            SPARK_WORKER_CORES: 1
+            SPARK_WORKER_MEMORY: 1g
         volumes:
             - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
             - ${WORKING_DIR}/spark:/opt/working_dir/spark  # Mount local directory containing Spark binaries
         networks:
             - spark-network
+
+    #spark-history-server:
+    #    image: rangareddy1988/spark-history-server:latest
+    #    container_name: spark-history-server
+    #    environment:
+    #        - SPARK_HISTORY_UI_PORT=18080
+    #        - SPARK_DAEMON_MEMORY=1g
+    #        - SPARK_HISTORY_RETAINEDAPPLICATIONS=200
+    #        - SPARK_HISTORY_UI_MAXAPPLICATIONS=500
+    #    ports:
+    #       - 18080:18080
+    #        - 4040:4040
+    #    volumes:
+    #        - /tmp/spark/spark-events:/tmp/spark-events 
+    #        - /tmp/spark/spark-history-server-logs:/var/log/spark
+
 
 networks:
   spark-network:

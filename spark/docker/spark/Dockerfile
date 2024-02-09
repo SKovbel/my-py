@@ -1,3 +1,4 @@
+# https://github.com/apache/spark-docker
 FROM eclipse-temurin:17-jre-jammy
 
 ARG spark_uid=185
