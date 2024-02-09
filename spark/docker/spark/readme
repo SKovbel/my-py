@@ -1,0 +1,7 @@
+A:
+Cores: 40 cores, Total = 80 cores
+Memory: 156G, Total = 312
+
+The suggestion by Spark development team is to not have an executor that is more than 64GB or so (often mentioned in training videos by Databricks). The idea is that a larger JVM will have a larger Heap that can result in really slow garbage collection cycles.
+
+I think is a good practice to have your executors 32GB or even 24GB or 16GB. So instead of having one large one you have 2-4 smaller ones.  
