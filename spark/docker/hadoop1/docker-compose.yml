@@ -1,0 +1,58 @@
+version: '3.7'
+
+services:
+    # Responsible for storing the metadata of the file system hierarchy in HDFS, including information about files, directories, 
+    #  and their associated data blocks.
+    # Master server that manages the namespace and coordinates access to data stored across the Hadoop cluster.
+    # Hadoop provides a concept called the "Active NameNode" and the "Standby NameNode."
+    # NameNode to perform various namespace operations, such as creating, deleting, or modifying files and directories in HDFS.
+    hadoop-name:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            args:
+                WORKING_DIR: ${WORKING_DIR}
+        container_name: hadoop-name
+        hostname: hadoop-name
+        ports:
+            - "9870:9870"
+            - "50070:50070"
+            - "8088:8088"
+        volumes:
+            - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
+            - ${WORKING_DIR}/hadoop:/hadoop/dfs/name
+
+    # Worker node in the Hadoop cluster responsible for storing and managing the actual data blocks of files in the 
+    #  Hadoop Distributed File System (HDFS).
+    # Store data in the form of blocks on the local file system of the machine where they are running.
+    # file is written to HDFS, it is divided into fixed-size blocks (typically 128 MB or 256 MB), 
+    #  and these blocks are distributed across multiple DataNodes in the cluster.
+    # By default, each block is replicated three times (configurable), 
+    #  with two additional copies stored on other DataNodes in the cluster.
+    # DataNodes continuously communicate with each other and with the NameNode to maintain the desired replication 
+    #  factor and handle block replication and deletion 
+    # DataNodes regularly send heartbeats to the NameNode to report their health and availability.
+    # They also send periodic block reports to the NameNode, listing all the blocks they have stored locally and 
+    #  their associated metadata.
+    # When a client reads data from HDFS, it communicates with the nearest DataNode hosting the requested block.
+    # respond to read and write requests from clients, fetching or storing data blocks as necessary.
+    # the NameNode detects the failure through missed heartbeats and replicates the lost data blocks to other DataNodes
+    # HDFS automatically rebalances data distribution across the cluster to ensure even utilization of storage capacity.
+    hadoop-node1:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            args:
+                WORKING_DIR: ${WORKING_DIR}
+        container_name: hadoop-node1
+        depends_on:
+            - hadoop-name
+        hostname: hadoop-node1
+        environment:
+            SERVICE_PRECONDITION: "hadoop-name:50070"
+        volumes:
+            - ${WORKING_DIR}/:/opt/working_dir  # Mount local directory containing Spark binaries
+            - ${WORKING_DIR}/hadoop:/hadoop/dfs/name
+
+volumes:
+    hadoop_data:

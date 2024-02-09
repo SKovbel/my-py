@@ -1,0 +1,114 @@
+# https://github.com/big-data-europe/docker-hadoop/blob/master/docker-compose.yml
+version: '3.7'
+
+services:
+    # Responsible for storing the metadata of the file system hierarchy in HDFS, including information about files, directories, 
+    #  and their associated data blocks.
+    # Master server that manages the namespace and coordinates access to data stored across the Hadoop cluster.
+    # Hadoop provides a concept called the "Active NameNode" and the "Standby NameNode."
+    # NameNode to perform various namespace operations, such as creating, deleting, or modifying files and directories in HDFS.
+    hadoop-name:
+        image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+        container_name: hadoop-name
+        hostname: hadoop-name
+        ports:
+            - 9870:9870
+            - 9000:9000
+            - 8088:8088
+        environment:
+            CLUSTER_NAME: "test"
+        volumes:
+            - ${WORKING_DIR}/hadoop/name:/hadoop/dfs/name
+        networks:
+            - hadoop-network
+        env_file:
+            - ./hadoop.env
+
+    # Worker node in the Hadoop cluster responsible for storing and managing the actual data blocks of files in the 
+    #  Hadoop Distributed File System (HDFS).
+    # Store data in the form of blocks on the local file system of the machine where they are running.
+    # file is written to HDFS, it is divided into fixed-size blocks (typically 128 MB or 256 MB), 
+    #  and these blocks are distributed across multiple nodes in the cluster.
+    # By default, each block is replicated three times (configurable), 
+    #  with two additional copies stored on other nodes in the cluster.
+    # nodes continuously communicate with each other and with the NameNode to maintain the desired replication 
+    #  factor and handle block replication and deletion 
+    # nodes regularly send heartbeats to the NameNode to report their health and availability.
+    # They also send periodic block reports to the NameNode, listing all the blocks they have stored locally and 
+    #  their associated metadata.
+    # When a client reads data from HDFS, it communicates with the nearest node hosting the requested block.
+    # respond to read and write requests from clients, fetching or storing data blocks as necessary.
+    # the NameNode detects the failure through missed heartbeats and replicates the lost data blocks to other nodes
+    # HDFS automatically rebalances data distribution across the cluster to ensure even utilization of storage capacity.
+    hadoop-node1:
+        image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+        container_name: hadoop-node1
+        depends_on:
+            - hadoop-name
+        hostname: hadoop-node1
+        environment:
+            SERVICE_PRECONDITION: "hadoop-name:9870"
+            CLUSTER_NAME: "test"
+        volumes:
+            - ${WORKING_DIR}/hadoop/node1:/hadoop/dfs/data
+        networks:
+            - hadoop-network
+        env_file:
+            - ./hadoop.env
+
+    hadoop-node2:
+        image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+        container_name: hadoop-node2
+        depends_on:
+            - hadoop-name
+        hostname: hadoop-node2
+        environment:
+            SERVICE_PRECONDITION: "hadoop-name:9870"
+        volumes:
+            - ${WORKING_DIR}/hadoop/node2:/hadoop/dfs/data
+        networks:
+            - hadoop-network
+        env_file:
+            - ./hadoop.env
+
+    hadoop-resourcemanager:
+        image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+        container_name: hadoop-resourcemanager
+        hostname: hadoop-resourcemanager
+        environment:
+            SERVICE_PRECONDITION: "hadoop-name:9000 hadoop-name:9870 hadoop-node1:9864 hadoop-node2:9864"
+        networks:
+            - hadoop-network
+        env_file:
+            - ./hadoop.env
+
+    hadoop-manager:
+        image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+        container_name: hadoop-manager
+        hostname: hadoop-manager
+        environment:
+            SERVICE_PRECONDITION: "hadoop-name:9000 hadoop-name:9870 hadoop-node1:9864 hadoop-node2:9864 hadoop-resourcemanager:8088"
+        networks:
+            - hadoop-network
+        env_file:
+            - ./hadoop.env
+
+    hadoop-historyserver:
+        image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+        container_name: hadoop-historyserver
+        hostname: hadoop-historyserver
+        environment:
+            SERVICE_PRECONDITION: "hadoop-name:9000 hadoop-name:9870 hadoop-node1:9864 hadoop-node2:9864 hadoop-resourcemanager:8088"
+        networks:
+            - hadoop-network
+        volumes:
+            - ${WORKING_DIR}/hadoop/yarn-timeline:/hadoop/yarn/timeline
+        env_file:
+            - ./hadoop.env
+
+volumes:
+    hadoop_data:
+
+networks:
+  hadoop-network:
+    driver: bridge
