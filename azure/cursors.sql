@@ -26,3 +26,15 @@ BEGIN
         DEALLOCATE @EmpCursor;
     */
 END;
+
+
+
+Hi Eva, 
+sorry for delay.
+
+My Java experience mostly JEE/Jakarta. One Java-mob and 3 Kotlin-mob projects.
+Also were 2 scripts on AWS Scala (just for interesting how it close to Java)
+Except Kotlin projects (which used API and API used DB) all Java-projects were high level projects around databases.
+No threads, parallelism I did with Queue and MDB beans. No Graphics, mostly form/grid interfaces + media.
+If it interesting for you we can talk.
+
