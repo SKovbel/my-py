@@ -11,7 +11,9 @@ from sklearn.linear_model import ElasticNet, Lasso, Ridge
 from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
+from datetime import datetime, timedelta
 
+sep_date = "2022-07-01"
 
 client = bigquery.Client()
 query = client.query(f"""
@@ -37,21 +39,21 @@ class BoostedHybrid:
 
     def fit(self, X_1, X_2, y):
         self.model_1.fit(X_1, y)
-        y_fit = pd.DataFrame(self.model_1.predict(X_1), index=X_1.index, columns=self.y_columns)
-        y_resid = y - y_fit['sales']
+        y_fit_1 = pd.DataFrame(self.model_1.predict(X_1), index=X_1.index, columns=self.y_columns)
+        y_resid_1 = y - y_fit_1['sales']
 
-        self.model_2.fit(X_2, y_resid)
-        self.y_fit = y_fit
-        self.y_resid = y_resid
+        self.model_2.fit(X_2, y_resid_1)
+        self.y_fit_1 = y_fit_1
+        self.y_resid_1 = y_resid_1
 
     def predict(self, X_1, X_2):
-        y_pred = pd.DataFrame(
+        y_pred_1 = pd.DataFrame(
             self.model_1.predict(X_1), 
             index=X_1.index, columns=self.y_columns,
         )
-        y_pred = y_pred.stack().squeeze()  # wide to long
-        y_pred += self.model_2.predict(X_2)
-        return y_pred.unstack()
+        y_pred_2 = y_pred_1.stack().squeeze()  # wide to long
+        y_pred_2 += self.model_2.predict(X_2)
+        return y_pred_1, y_pred_2.unstack()
 
 
 df = query.to_dataframe()
@@ -68,22 +70,37 @@ dp = DeterministicProcess(index=y.index, order=1)
 X_1 = dp.in_sample()
 X_2 = df.loc[:, 'sales']
 
+sep_date_2 = (datetime.strptime(sep_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+y_train, y_valid = y[:sep_date], y[sep_date_2:]
+X1_train, X1_valid = X_1[: sep_date], X_1[sep_date_2 :]
+X2_train, X2_valid = X_2.loc[:sep_date], X_2.loc[sep_date_2:]
+
 model = BoostedHybrid()
 model.fit(X_1, X_2, y)
-y_pred = model.predict(X_1, X_2)
-y_pred = y_pred.clip(0.0)
-
-y_train, y_valid = y[:"2022-07-01"], y["2022-07-02":]
-X1_train, X1_valid = X_1[: "2022-07-01"], X_1["2022-07-02" :]
-X2_train, X2_valid = X_2.loc[:"2022-07-01"], X_2.loc["2022-07-02":]
+y_1, y_2 = model.predict(X_1, X_2)
+y_2 = y_2.clip(0.0)
 
 model2 = BoostedHybrid()
 model2.fit(X1_train, X2_train, y_train)
-y_fit = model2.predict(X1_train, X2_train).clip(0.0)
-y_pred = model2.predict(X1_valid, X2_valid).clip(0.0)
 
-ax = y.plot(sharex=True, figsize=(11, 9), color='blue', alpha=0.5)
-y_fit.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='green', ax=ax)
-y_pred.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
+y_fit_1, y_fit_2 = model2.predict(X1_train, X2_train)
+y_fit_2 = y_fit_2.clip(0.0)
+
+y_pred_1, y_pred_2 = model2.predict(X1_valid, X2_valid)
+y_pred_2 = y_pred_2.clip(0.0)
+
+fig, ax = plt.subplots(len(model2.y_columns), 1, figsize=(10, len(model2.y_columns) * 5), sharex=True)
+plt.axvline(x=datetime.strptime(sep_date, "%Y-%m-%d"), color='red', linestyle='--')
+
+y_fit_1.plot(subplots=True, sharex=True, color='orange', ax=ax)
+y_fit_2.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
+
+y_pred_1.plot(subplots=True, sharex=True, color='orange', ax=ax)
+y_pred_2.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
+
+y_1.plot(subplots=True, sharex=True, color='blue', ax=ax, linestyle=':')
+y_2.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='blue', ax=ax, linestyle=':')
+
 ax.legend([])
+
 plt.show()
