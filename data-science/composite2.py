@@ -16,13 +16,12 @@ from sklearn.neural_network import MLPRegressor
 client = bigquery.Client()
 query = client.query(f"""
     SELECT DATE(date) AS date,
-           city,
            COUNT(*) AS items,
            SUM(sale_dollars) AS sales
       FROM bigquery-public-data.iowa_liquor_sales.sales
      WHERE date >= @from_date AND date <= @to_date
-     GROUP BY city, date
-     ORDER BY city, date
+     GROUP BY date
+     ORDER BY date
 """, job_config=bigquery.QueryJobConfig(
     query_parameters=[
         bigquery.ScalarQueryParameter("from_date", "DATE", "2022-01-01"),
@@ -32,22 +31,18 @@ query = client.query(f"""
 
 class BoostedHybrid:
     def __init__(self):
-        self.y_columns = None
+        self.y_columns = ['sales']
         self.model_1 = LinearRegression()
         self.model_2 = XGBRegressor()
 
     def fit(self, X_1, X_2, y):
         self.model_1.fit(X_1, y)
-        y_fit = pd.DataFrame(self.model_1.predict(X_1), index=X_1.index, columns=y.columns)
-        
-        y_resid = y - y_fit
-        y_resid = y_resid.stack().squeeze() # wide to long
+        y_fit = pd.DataFrame(self.model_1.predict(X_1), index=X_1.index, columns=self.y_columns)
+        y_resid = y - y_fit['sales']
 
         self.model_2.fit(X_2, y_resid)
-        self.y_columns = y.columns
         self.y_fit = y_fit
         self.y_resid = y_resid
-
 
     def predict(self, X_1, X_2):
         y_pred = pd.DataFrame(
@@ -61,52 +56,34 @@ class BoostedHybrid:
 
 df = query.to_dataframe()
 df['date'] = pd.to_datetime(df['date'])
-df['date'] = df.date.dt.to_period('D')
-df = df.set_index(['date', 'city']).sort_index()
+if 1==1:
+    df = df.resample('W-Mon', on='date').mean()
+else:
+    df['date'] = df.date.dt.to_period('D')
+    df = df.set_index(['date']).sort_index()
 
-sales = (
-    df.groupby(['date', 'city'])
-    .mean()
-    .unstack('city')
-    .loc['2022']
+y = df.loc[:, 'sales']
 
-)
-sales.fillna(0, inplace=True)
-
-y = sales.loc[:, 'sales']
-print(type(sales))
-exit(0)
 dp = DeterministicProcess(index=y.index, order=1)
 X_1 = dp.in_sample()
+X_2 = df.loc[:, 'sales']
 
-le = LabelEncoder()
-X_2 = sales.drop('sales', axis=1).stack()
-X_2 = X_2.reset_index('city')
-X_2['city'] = le.fit_transform(X_2['city'])
-X_2['day'] = X_2.index.day
-
-# trend vs 
 model = BoostedHybrid()
 model.fit(X_1, X_2, y)
 y_pred = model.predict(X_1, X_2)
 y_pred = y_pred.clip(0.0)
 
-
 y_train, y_valid = y[:"2022-07-01"], y["2022-07-02":]
 X1_train, X1_valid = X_1[: "2022-07-01"], X_1["2022-07-02" :]
 X2_train, X2_valid = X_2.loc[:"2022-07-01"], X_2.loc["2022-07-02":]
 
-model.fit(X1_train, X2_train, y_train)
-y_fit = model.predict(X1_train, X2_train).clip(0.0)
-y_pred = model.predict(X1_valid, X2_valid).clip(0.0)
+model2 = BoostedHybrid()
+model2.fit(X1_train, X2_train, y_train)
+y_fit = model2.predict(X1_train, X2_train).clip(0.0)
+y_pred = model2.predict(X1_valid, X2_valid).clip(0.0)
 
-cities = y.columns[0:6]
-axs = y.loc(axis=1)[cities].plot(
-    subplots=True, sharex=True, figsize=(11, 9), alpha=0.5,
-)
-_ = y_fit.loc(axis=1)[cities].plot(subplots=True, sharex=True, color='C0', ax=axs)
-_ = y_pred.loc(axis=1)[cities].plot(subplots=True, sharex=True, color='C3', ax=axs)
-for ax, family in zip(axs, cities):
-    ax.legend([])
-    ax.set_ylabel(family)
+ax = y.plot(sharex=True, figsize=(11, 9), color='blue', alpha=0.5)
+y_fit.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='green', ax=ax)
+y_pred.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
+ax.legend([])
 plt.show()
