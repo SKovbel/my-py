@@ -28,17 +28,17 @@ df = query.to_dataframe()
 df['date'] = pd.to_datetime(df['agr_date'])
 df.set_index('date', inplace=True)
 
-
+#2
 df = df.dropna().to_period('D')
-print(df)
 num = 10
 fig, axes = plt.subplots(num//2, 2, figsize=(10, 6))  # Adjust figsize as needed
-for i in range(num):
+for i in range(1, 1+num):
     x = i // 2
     y = i % 2
     axes[x, y].scatter(df['sales'].shift(i), df['sales'], s=1)
 plt.show()
 
+#3
 df['lag_sales1'] = df['sales'].shift(30)
 df['lag_sales2'] = df['sales'].shift(2)
 
@@ -48,7 +48,7 @@ ax.set_aspect('equal')
 ax.set_title('Lag Plot of Hardcover Sales')
 plt.show()
 
-
+#4
 plt.figure(figsize=(10, 6))
 plt.plot(df['agr_date'], df['sales'], color='orange')
 plt.plot(df['agr_date'], df['lag_sales1'], color="blue")

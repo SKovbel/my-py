@@ -4,7 +4,6 @@ from google.cloud import bigquery
 import matplotlib.pyplot as plt
 from statsmodels.tsa.deterministic import CalendarFourier, DeterministicProcess
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import LinearRegression
 
 client = bigquery.Client()
@@ -26,25 +25,38 @@ query = client.query(f"""
     ]
 ))
 
-def trend(df, df_train, column='sales', order=1):
+def trend(df_train, df_test, column='sales', order=1):
     # order=2 quadratic
     X = DeterministicProcess(index=df_train.index, constant=True, order=order, drop=True).in_sample()
     trend_model = LinearRegression(fit_intercept=False)
     trend_model.fit(X, df_train[column])
 
-    X = DeterministicProcess(index=df.index, constant=True, order=order, drop=True).in_sample()
+    X = DeterministicProcess(index=df_test.index, constant=True, order=order, drop=True).in_sample()
     return pd.Series(trend_model.predict(X), index=X.index)
 
 def moving_average(df, column='sales', window=30):
     return df[column].rolling(window=window, center=True, min_periods=int(window/2)).mean()
 
-def seasonly(df, df_train, column='sales'):
+def seasonly(df_train, df_test, column='sales'):
     fourier = CalendarFourier(freq='W', order=2) 
     X = DeterministicProcess(index=df_train.index, constant=True, order=1, seasonal=True, additional_terms=[fourier], drop=True).in_sample()
     trend_model = LinearRegression(fit_intercept=False)
     trend_model.fit(X, df_train[column])
 
-    X = DeterministicProcess(index=df.index, constant=True, order=1, seasonal=True, additional_terms=[fourier], drop=True).in_sample()
+    X = DeterministicProcess(index=df_test.index, constant=True, order=1, seasonal=True, additional_terms=[fourier], drop=True).in_sample()
+    return pd.Series(trend_model.predict(X), index=X.index)
+
+def cycle(df_train, df_test, column='sales'):
+    df_train['lag'] = df_train[column].shift(1)
+    Xy = df_train.dropna()
+    X = Xy.loc[:, ['lag']]
+    y = Xy.loc[:, 'sales']
+    trend_model = LinearRegression(fit_intercept=False)
+    trend_model.fit(X, y)
+
+    df_test['lag'] = df_test[column].shift(1)
+    Xy = df_test.dropna()
+    X = Xy.loc[:, ['lag']]
     return pd.Series(trend_model.predict(X), index=X.index)
 
 part = -50
@@ -53,25 +65,21 @@ df['date'] = pd.to_datetime(df['agr_date'])
 df.set_index('date', inplace=True)
 df.index = df.index.to_period('D')
 
-df['lag_items'] = df['items'].shift(1)
-df['lag_sales'] = df['sales'].shift(1)
-
 df_train, df_test = df[:part+1],  df[part:]
 
-df['trend'] = trend(df, df_train, order=1)
-df['avg'] = moving_average(df, window=30)
-df['seas'] = seasonly(df, df_train)
+df['trdA'] = trend(df_train, df, order=1)
+df['trd'] = trend(df_train, df_test, order=1)
+df['avg'] = moving_average(df_train, window=30)
+df['ssn'] = seasonly(df_train, df_test)
+df['ccl'] = cycle(df_train, df_test)
 
-print(df_train)
-
-plt.figure(figsize=(10, 6))
-plt.plot(df_train['agr_date'], df_train['sales'], color='orange')
-plt.plot(df_test['agr_date'], df_test['sales'], color='grey')
-plt.plot(df['agr_date'], df['trend'], color="orange", linestyle='-.')
-plt.plot(df['agr_date'], df['avg'], color="blue")
-plt.plot(df['agr_date'], df['seas'], color="green", linewidth=1)
-plt.xlabel('Date')
-plt.ylabel('Count')
-plt.title('DataFrame 1')
-plt.xticks(rotation=45)
+fig = plt.figure(figsize=(10, 6))
+plt.plot(df_train['agr_date'], df_train['sales'], color='orange', linewidth=1)
+plt.plot(df_test['agr_date'], df_test['sales'], color='grey', linewidth=1)
+plt.plot(df['agr_date'], df['trdA'], color="orange", linewidth=1, label="TradeA")
+plt.plot(df['agr_date'], df['trd'], color="orange", linewidth=1, label="Trade")
+plt.plot(df['agr_date'], df['avg'], color="blue", linewidth=1, label='AVG')
+plt.plot(df['agr_date'], df['ssn'], color="green", linewidth=1, label='Season')
+plt.plot(df['agr_date'], df['ccl'], color="red", linewidth=1, label='Cycle')
+plt.legend()
 plt.show()
