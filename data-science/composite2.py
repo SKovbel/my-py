@@ -4,16 +4,9 @@ from google.cloud import bigquery
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder
 from statsmodels.tsa.deterministic import DeterministicProcess
 from xgboost import XGBRegressor
-from sklearn.linear_model import ElasticNet, Lasso, Ridge
-from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.neural_network import MLPRegressor
 from datetime import datetime, timedelta
-
-sep_date = "2022-07-01"
 
 client = bigquery.Client()
 query = client.query(f"""
@@ -31,30 +24,8 @@ query = client.query(f"""
     ]
 ))
 
-class BoostedHybrid:
-    def __init__(self):
-        self.y_columns = ['sales']
-        self.model_1 = LinearRegression()
-        self.model_2 = XGBRegressor()
-
-    def fit(self, X_1, X_2, y):
-        self.model_1.fit(X_1, y)
-        y_fit_1 = pd.DataFrame(self.model_1.predict(X_1), index=X_1.index, columns=self.y_columns)
-        y_resid_1 = y - y_fit_1['sales']
-
-        self.model_2.fit(X_2, y_resid_1)
-        self.y_fit_1 = y_fit_1
-        self.y_resid_1 = y_resid_1
-
-    def predict(self, X_1, X_2):
-        y_pred_1 = pd.DataFrame(
-            self.model_1.predict(X_1), 
-            index=X_1.index, columns=self.y_columns,
-        )
-        y_pred_2 = y_pred_1.stack().squeeze()  # wide to long
-        y_pred_2 += self.model_2.predict(X_2)
-        return y_pred_1, y_pred_2.unstack()
-
+sep_date = "2022-07-01"
+sep_date_2 = (datetime.strptime(sep_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
 
 df = query.to_dataframe()
 df['date'] = pd.to_datetime(df['date'])
@@ -63,44 +34,73 @@ if 1==1:
 else:
     df['date'] = df.date.dt.to_period('D')
     df = df.set_index(['date']).sort_index()
+df_train, df_valid = df[:sep_date], df[sep_date_2:]
 
-y = df.loc[:, 'sales']
 
-dp = DeterministicProcess(index=y.index, order=1)
-X_1 = dp.in_sample()
-X_2 = df.loc[:, 'sales']
+class ModelHybrid:
+    def __init__(self):
+        self.y_columns = ['sales']
+        self.model_trend = LinearRegression()
+        self.model_cycle = XGBRegressor()
+        # dp from 2010
+        pd_date_range = pd.date_range(start=datetime(2010, 1, 1), end=datetime.now(), freq='D')
+        self.dp_trend = DeterministicProcess(index=pd_date_range, order=1).in_sample()
 
-sep_date_2 = (datetime.strptime(sep_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
-y_train, y_valid = y[:sep_date], y[sep_date_2:]
-X1_train, X1_valid = X_1[: sep_date], X_1[sep_date_2 :]
-X2_train, X2_valid = X_2.loc[:sep_date], X_2.loc[sep_date_2:]
+    def __get_params(self, df):
+        y = df.loc[:, 'sales']
+        X_trend = self.dp_trend[self.dp_trend.index.isin(df.index)]
+        X_cycle = df.loc[:, 'sales']
+        return X_trend, X_cycle, y
 
-model = BoostedHybrid()
-model.fit(X_1, X_2, y)
-y_1, y_2 = model.predict(X_1, X_2)
+    def fit(self, df):
+        X_trend, X_cycle, y = self.__get_params(df)
+
+        # fit trend
+        self.model_trend.fit(X_trend, y)
+        y_trend = pd.DataFrame(self.model_trend.predict(X_trend), index=X_trend.index, columns=self.y_columns)
+        y_resid_trend = y - y_trend['sales']
+
+        # fit cycle
+        self.model_cycle.fit(X_cycle, y_resid_trend)
+        y_fit_cycle = pd.DataFrame(self.model_cycle.predict(X_cycle), index=X_cycle.index, columns=self.y_columns)
+
+    def predict(self, df):
+        X_trend, X_cycle, y = self.__get_params(df)
+        print(X_trend)
+        y_trend = pd.DataFrame(
+            self.model_trend.predict(X_trend), 
+            index=X_trend.index, columns=self.y_columns,
+        )
+
+        y_cycle = y_trend.stack().squeeze()  # wide to long
+        y_cycle += self.model_cycle.predict(X_cycle)
+        return y_trend, y_cycle.unstack()
+
+
+
+
+# fit on full range for best test
+model = ModelHybrid()
+model.fit(df)
+y_1, y_2 = model.predict(df)
 y_2 = y_2.clip(0.0)
 
-model2 = BoostedHybrid()
-model2.fit(X1_train, X2_train, y_train)
+# fit on train and valid range for prod mode
+model2 = ModelHybrid()
+model2.fit(df_train)
+y_fit_trend, y_fit_cycle = model2.predict(df_train)
+y_fit_cycle = y_fit_cycle.clip(0.0)
+y_pred_trend, y_pred_cycle = model2.predict(df_valid)
+y_pred_cycle = y_pred_cycle.clip(0.0)
 
-y_fit_1, y_fit_2 = model2.predict(X1_train, X2_train)
-y_fit_2 = y_fit_2.clip(0.0)
-
-y_pred_1, y_pred_2 = model2.predict(X1_valid, X2_valid)
-y_pred_2 = y_pred_2.clip(0.0)
-
+# chart
 fig, ax = plt.subplots(len(model2.y_columns), 1, figsize=(10, len(model2.y_columns) * 5), sharex=True)
 plt.axvline(x=datetime.strptime(sep_date, "%Y-%m-%d"), color='red', linestyle='--')
-
-y_fit_1.plot(subplots=True, sharex=True, color='orange', ax=ax)
-y_fit_2.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
-
-y_pred_1.plot(subplots=True, sharex=True, color='orange', ax=ax)
-y_pred_2.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
-
+y_fit_trend.plot(subplots=True, sharex=True, color='orange', ax=ax)
+y_fit_cycle.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
+y_pred_trend.plot(subplots=True, sharex=True, color='orange', ax=ax)
+y_pred_cycle.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='orange', ax=ax)
 y_1.plot(subplots=True, sharex=True, color='blue', ax=ax, linestyle=':')
 y_2.loc(axis=1)[model2.y_columns].plot(subplots=True, sharex=True, color='blue', ax=ax, linestyle=':')
-
 ax.legend([])
-
 plt.show()
