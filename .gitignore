@@ -10,3 +10,4 @@ _django/dexa-net/db.sqlite3
 _flask/hello/database.db
 venv
 
+spark/docker/spark/spark.tgz

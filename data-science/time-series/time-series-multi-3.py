@@ -60,10 +60,10 @@ class ModelHybrid:
 
         X_season = self.dp_season[self.dp_season.index.isin(df.index)]
 
-        return X_trend, X_cycle, X_season, y
+        return X_trend, X_season, X_cycle, y
 
     def fit(self, df):
-        X_trend, X_cycle, X_season, y = self.__get_params(df)
+        X_trend, X_season, X_cycle, y = self.__get_params(df)
 
         # fit trend
         self.model_trend.fit(X_trend, y)
@@ -83,38 +83,38 @@ class ModelHybrid:
         y_resid = y_resid - y_cycle['sales']
 
     def predict(self, df):
-        X_trend, X_cycle, X_season, y = self.__get_params(df)
+        X_trend, X_season, X_cycle, y = self.__get_params(df)
 
         y_trend = pd.DataFrame(
             self.model_trend.predict(X_trend), 
             index=X_trend.index, columns=['sales'],
         )
 
-        y_cycle = pd.DataFrame(
-            self.model_cycle.predict(X_cycle),
-            index=X_cycle.index, columns=['sales'],
-        )
-        y_cycle += y_trend
-
         y_season = pd.DataFrame(
             self.model_season.predict(X_season), 
             index=X_season.index, columns=['sales'],
         )
-        y_season += y_cycle
+        y_season += y_trend
 
-        return y_trend, y_cycle, y_season
+        y_cycle = pd.DataFrame(
+            self.model_cycle.predict(X_cycle),
+            index=X_cycle.index, columns=['sales'],
+        )
+        y_cycle += y_season
+
+        return y_trend, y_season, y_cycle
 
 
 # fit on full range for best test
 model = ModelHybrid()
 model.fit(df)
-y_trend, y_cycle, y_season = model.predict(df)
+y_trend, y_season, y_cycle = model.predict(df)
 
 # fit on train and valid range for prod mode
 model2 = ModelHybrid()
 model2.fit(df_train)
-y_fit_trend, y_fit_cycle, y_fit_season = model2.predict(df_train)
-y_pred_trend, y_pred_cycle, y_pred_season = model2.predict(df_valid)
+y_fit_trend, y_fit_season, y_fit_cycle = model2.predict(df_train)
+y_pred_trend, y_pred_season, y_pred_cycle = model2.predict(df_valid)
 
 # chart
 fig, ax = plt.subplots(len(['sales']), 1, figsize=(10, len(['sales']) * 5), sharex=True)
