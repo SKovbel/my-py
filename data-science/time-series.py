@@ -69,18 +69,19 @@ class ModelHybrid:
         self.model_trend.fit(X_trend, y)
         y_trend = pd.DataFrame(self.model_trend.predict(X_trend), index=X_trend.index, columns=['sales'])
 
-        y_resid = y - y_trend['sales']
-
         # fit season
+        y_resid = y - y_trend['sales']
         self.model_season.fit(X_season, y_resid)
         y_season = pd.DataFrame(self.model_season.predict(X_season), index=X_season.index, columns=['sales'])
 
-        y_resid = y_resid - y_season['sales']
-
         # fit cycle
+        y_resid = y_resid - y_season['sales']
         self.model_cycle.fit(X_cycle, y_resid)
         y_cycle = pd.DataFrame(self.model_cycle.predict(X_cycle), index=X_cycle.index, columns=['sales'])
   
+        # next one
+        y_resid = y_resid - y_cycle['sales']
+
     def predict(self, df):
         X_trend, X_cycle, X_season, y = self.__get_params(df)
 
