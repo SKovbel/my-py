@@ -1,5 +1,5 @@
-export ROOT_DIR=./../../../tmp
-export ORACLE_DIR=$ROOT_DIR/oracle
+export ROOT_DIR=/home/work/python/tmp/oracle
+export ORACLE_DIR=$ROOT_DIR
 export BACKUP_DIR=$ROOT_DIR/oracle-backup
 
 export SCRIPT_DIR=./../scripts
