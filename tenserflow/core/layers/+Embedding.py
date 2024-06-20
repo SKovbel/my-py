@@ -11,7 +11,8 @@ model = keras.Sequential([
         input_dim=5000, # vocabulary size 
         output_dim=3, #  Length of output
         input_length=10 #  Length of input sequences,
-    )
+    ),
+    keras.layers.Flatten()
 ])
 
 # prepare data
