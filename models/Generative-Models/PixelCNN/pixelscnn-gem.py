@@ -20,13 +20,15 @@ rn.seed(random_seed)
 
 train_dir = 'tmp/gems/train/'
 test_dir = 'tmp/gems/test/'
-save_dir = './checkpoints/'
+save_dir = 'tmp/checkpoints/'
 os.makedirs(save_dir, exist_ok=True)
 
 height = 32
 width = 32
 n_channel = 3
-batch_size = 128
+batch_size = 80
+q_levels = 128
+train_buf = 500
 
 
 def to_numpy(dataset):
@@ -65,14 +67,12 @@ x_train = x_train.astype('float32') / 255.
 x_test = x_test.astype('float32') / 255.
 
 # Quantisize the input data in q levels, reduce noice and precision of pixel
-q_levels = 128
 x_train_quantised_of = quantisize(x_train, q_levels)
 x_test_quantised_of = quantisize(x_test, q_levels)
 
 print(x_train.shape)
 
 # Creating input stream
-train_buf = 500
 train_dataset = tf.data.Dataset.from_tensor_slices((x_train_quantised_of / (q_levels - 1), x_train_quantised_of.astype('int32')))
 train_dataset = train_dataset.shuffle(buffer_size=train_buf)
 train_dataset = train_dataset.batch(batch_size)
@@ -81,20 +81,20 @@ test_dataset = tf.data.Dataset.from_tensor_slices((x_test_quantised_of / (q_leve
 test_dataset = test_dataset.batch(batch_size)
 
 
-
-
 class MaskedConv2D(tf.keras.layers.Layer):
-    def __init__(self,
-                 mask_type,
-                 name,
-                 filters,
-                 kernel_size,
-                 strides=1,
-                 n_channels=3,
-                 padding='same',
-                 kernel_initializer='glorot_uniform',
-                 bias_initializer='zeros',
-                 **kwargs):
+    def __init__(
+        self,
+        mask_type,
+        name,
+        filters,
+        kernel_size,
+        strides=1,
+        n_channels=3,
+        padding='same',
+        kernel_initializer='glorot_uniform',
+        bias_initializer='zeros',
+        **kwargs
+    ):
         super(MaskedConv2D, self).__init__(name=name, **kwargs)
 
         self.mask_type = mask_type
@@ -156,7 +156,6 @@ class ResidualBlock(tf.keras.Model):
     
 
 
-    #############################
 class PixelCNNLearningRateSchedule(LearningRateSchedule):
     def __init__(self, initial_learning_rate, decay_rate):
         super(PixelCNNLearningRateSchedule, self).__init__()
@@ -167,7 +166,6 @@ class PixelCNNLearningRateSchedule(LearningRateSchedule):
         step = tf.cast(step, dtype=tf.float32)
         return self.initial_learning_rate * tf.math.pow(self.decay_rate, step)
     
-#############################
 class Model:
     def __init__(self):
         self.epoch = 0
@@ -206,7 +204,7 @@ class Model:
             for i_batch, (batch_x, batch_y) in enumerate(train_dataset):
                 self.__train_step(batch_x, batch_y)
                 tf.print(f'Epoch {epoch}, batch {i_batch}, shape: {batch_x.shape}, time: {time.time() - start:.2f}')
-        self.model.save_weights(os.path.join(save_dir, f'model-{epoch:02d}'))
+            self.pixelcnn.save_weights(os.path.join(save_dir, f'{epoch:2d}.weights.h5'))
         print('Training complete.')
 
     def generate(self, n_samples=9):
@@ -224,10 +222,11 @@ class Model:
         return samples
 
     def load(self):
-        checkpoint = tf.train.latest_checkpoint(save_dir)
-        if checkpoint:
-            self.model.load_weights(checkpoint)
-            self.epoch = int(checkpoint.split('-')[-1])
+        files = [os.path.join(save_dir, f) for f in os.listdir(save_dir) if os.path.isfile(os.path.join(save_dir, f))]
+        recent_file = max(files, key=os.path.getmtime)
+        if recent_file:
+            self.pixelcnn.load_weights(recent_file)
+            self.epoch = int(os.path.basename(recent_file).split('.')[0]) + 1
 
 model = Model()
 model.load()
@@ -250,8 +249,8 @@ for i in range(10):
 plt.show()
 
 
-n_samples = 1
-#samples = model.generate(n_samples)
+n_samples = 10
+samples = model.generate(n_samples)
 fig,ax = plt.subplots(1, 10, figsize=(15, 10), dpi=80)
 for i in range(n_samples):
     ax[i].imshow(samples[i, :, :, :])

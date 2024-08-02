@@ -9,6 +9,7 @@ from pixelsnail.sampling import SampleCallback
 
 N_WORKERS = 8
 DIR = f'{os.path.dirname(os.path.abspath(__file__))}/../../tmp/gems'
+os.makedirs(DIR, exist_ok=True)
 
 rng = np.random.RandomState(10)
 tf.compat.v1.set_random_seed(10)
