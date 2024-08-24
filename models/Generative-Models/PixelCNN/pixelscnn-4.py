@@ -69,7 +69,7 @@ class Preparation:
         output[:width, :height] = [row[0:height] for row in input[0:width]]
         # expand
         output = (output[None, :, :] == np.arange(1, CHANNEL + 1)[:, None, None]).astype(int)
-        return [output[6]]
+        return output
 
     def debug(self):
         with np.printoptions(threshold=np.inf):
@@ -120,11 +120,11 @@ class Preparation:
         plt.show()
 
 prep = Preparation()
-CHANNEL=1
-idx = 22
+idx = 0
 prep.plot_layers(key_id=0, img_id=0)
 prep.plot_sample(key_id=0, img_id=0)
 prep.plot_test(key_id=0)
+exit(0)
 
 samples = prep.samples(0)
 X_train, y_train = samples['X_train'], samples['y_train']
