@@ -5,53 +5,36 @@ model = keras.Sequential([
     keras.layers.TextVectorization(
         max_tokens=5000, 
         output_mode='int', 
-        output_sequence_length=5
+        output_sequence_length=10
     ),
     keras.layers.Embedding(
-        input_dim=5000, # vocabulary size 
-        output_dim=3, #  Length of output
-        input_length=10 #  Length of input sequences,
+        input_dim=5000,   # vocabulary size 
+        output_dim=4,     #  Length of output sequences
+        input_length=10   #  Length of input sequences,
     ),
-    keras.layers.Flatten()
+    keras.layers.GlobalAveragePooling1D()
 ])
 
-# prepare data
-x =  tf.constant([["Good morning"], ["How are you doing"], ["I am well, thank you"]])
-lower = tf.strings.lower(x)
-split = tf.strings.split(lower)
-flat = tf.reshape(split, [-1]) #['good', 'morning', 'how', 'are', 'you', 'doing' ...]
-dict = tf.data.Dataset.from_tensor_slices(flat)
+x = tf.constant([["Good morning"], ["Good morning 2"], ["Good morning 21"], 
+                 ["morning Good morning Good"], ["How are you doing"], ["I am well, thank you"], ["NO"]])
+x = tf.strings.lower(x)
 
-# text vectoriazation layer adaptation
-model.layers[0].adapt(dict.batch(64))
+#split = tf.strings.split(lower)
+#flat = tf.reshape(split, [-1]) #['good', 'morning', 'how', 'are', 'you', 'doing' ...]
+#dict = tf.data.Dataset.from_tensor_slices(flat)
 
+
+model.layers[0].adapt(x)
 y = model.predict(x)
-
-# [[[-0.01567411 -0.02615447 -0.04952345]
-#   [-0.03134163  0.00893166  0.04197231]
-#   [-0.04370204 -0.01348071  0.01738245]
-#   [-0.04370204 -0.01348071  0.01738245]
-#   [-0.04370204 -0.01348071  0.01738245]]
-# 
-#  [[ 0.01053116 -0.0307356  -0.02847686]
-#   [-0.03112371  0.00320128 -0.00609349]
-#   [-0.04619465  0.04933066 -0.04071984]
-#   [-0.01638418 -0.00893801 -0.01988443]
-#   [-0.04370204 -0.01348071  0.01738245]]
-# 
-# [[-0.00860243 -0.02533059 -0.00257198]
-#   [ 0.04490963  0.04273863  0.00586807]
-#   [ 0.00084133  0.04648209 -0.02876893]
-#   [ 0.01868332 -0.04133495  0.01682564]
-#   [-0.04619465  0.04933066 -0.04071984]]]
-
 print(y)
 
+
+exit(0)
 ################## 2
 vectorizer = keras.layers.TextVectorization(
         max_tokens=5000, 
         output_mode='int', 
-        output_sequence_length=5)
+        output_sequence_length=10)
 
 embdding = keras.layers.Embedding(
         input_dim=5000, # vocabulary size 
@@ -65,3 +48,8 @@ print('vectorizer', V)
 
 E = embdding(V)
 print('embdding', E)
+
+# RMSLE: 0.024302245859257388
+# RMSLE: 0.024352714684550258
+# RMSLE: 0.024387786034942002
+# RMSLE: 0.02440371380066847
