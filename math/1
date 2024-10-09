@@ -1,0 +1,146 @@
+num_columns = ['milage_year', 'model_year', 'milage',
+        'engine_hp', 'engine_volume', 'engine_cylinder', 'engine_valve',
+        'engine_c1', 'engine_c2', 'engine_c3']
+
+def prepare_data(df):
+    string_columns = df.select_dtypes(include='object').columns
+    df[string_columns] = df[string_columns].fillna('unknown') # fill nan strings
+    df[string_columns] = df[string_columns].apply(lambda col: col.str.lower())
+    delta('unknown/lower')
+
+    df['transmission'] = df['transmission'].str.replace(r'\b(a/t|at)\b', 'automatic', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'\b(m/t|mt)\b', 'manual', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'.*cvt.*|.*variable.*', 'automatic variable', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'.*dual shift mode.*|.*dct.*', 'dct automatic', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'.*with auto-shift.*', 'automatic', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'\bo\b', '', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'override', 'manual', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'transmission|controlled|electronically|switch|with|fixed|gear|for or in production', '', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'[\s\-]*speed', r'speed', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'singlespeed', r'1speed', regex=True)
+    df['transmission'] = df['transmission'].str.replace(r'w/|/|\s{2,}', ' ', regex=True)
+    df['transmission'] = df['transmission'].apply(lambda x: 'unknown' if len(x) < 2 else x)
+    df['transmission'] = df['transmission'].str.strip()
+    delta('transmission')
+
+    df['engine'] = df['engine'].str.replace(r' (\d+)\s*cylinder', r' v\1', regex=True)
+    df['engine'] = df['engine'].str.replace(r'(\d+\.\d+)\s*liter', r' \1l', regex=True)
+    df['engine'] = df['engine'].str.replace(r'\b(engine|motor|system|fuel|cylinder|capability)\b', '', regex=True)
+    df['engine_hp'] = df['engine'].str.extract(r'(\d+\.?\d*)hp', expand=False).astype(float).fillna(0.1).replace(0.0, 0.0)
+    df['engine_valve'] = df['engine'].str.extract(r'(\d+)м', expand=False).astype(float).fillna(0).replace(0.0, 0.0)
+    df['engine_volume'] = df['engine'].str.extract(r'(\d+\.?\d*)l', expand=False).astype(float).fillna(0).replace(0.0, 0.0)
+    df['engine_cylinder'] = df['engine'].str.extract(r'v(\d+)', expand=False).astype(float).fillna(0).replace(0.0, 0.0)
+    delta('engine')
+
+    df['fuel_type'] = df['fuel_type'].str.replace(r'e85 flex fuel', 'flex', regex=True)
+    df['fuel_type'] = np.where(df['engine'].str.contains('diesel', case=False, na=False), df['fuel_type'] + ' diesel', df['fuel_type'])
+    df['fuel_type'] = np.where(df['engine'].str.contains('electric', case=False, na=False), df['fuel_type'] + ' electric', df['fuel_type'])
+    df['fuel_type'] = np.where(df['engine'].str.contains('hydrogen', case=False, na=False), df['fuel_type'] + ' hydrogen', df['fuel_type'])
+    df['fuel_type'] = np.where(df['engine'].str.contains('battery', case=False, na=False), df['fuel_type'] + ' electric', df['fuel_type'])
+    df['fuel_type'] = np.where(df['engine'].str.contains('hybrid', case=False, na=False), df['fuel_type'] + ' electric hybrid', df['fuel_type'])
+    df['fuel_type'] = np.where(df['engine'].str.contains('flex', case=False, na=False), df['fuel_type'] + ' gasoline flex', df['fuel_type'])
+    df['fuel_type'] = np.where(df['engine'].str.contains('gasoline', case=False, na=False), df['fuel_type'] + ' gasoline', df['fuel_type'])
+    df['fuel_type'] = df['fuel_type'].apply(lambda x: x + ' flex gasoline' if 'flex' in x else x)
+    df['fuel_type'] = df['fuel_type'].apply(lambda x: x + ' electric gasoline' if 'hybrid' in x else x)
+    df['fuel_type'] = df['fuel_type'].apply(lambda x: x.replace('gasoline', '') if 'diesel' in x else x)
+    df['fuel_type'] = df['fuel_type'].apply(lambda x: 'hydrogen' if 'hydrogen' in x else x)
+    df['fuel_type'] = df['fuel_type'].apply(lambda x: ' '.join(sorted(set(x.split()))))
+    df['fuel_type'] = df['fuel_type'].str.replace(r'(–|plug\-in|hybrid|not supported|unknown)', '', regex=True)
+    df['fuel_type'] = df['fuel_type'].str.replace(r'\s{2,}', ' ', regex=True).str.strip()
+    df['fuel_type'] = df['fuel_type'].replace('', 'unknown')
+    delta('fuel_type')
+    
+    #df['engine'] = df['engine'].str.replace(r'\s{2,}', ' ', regex=True)
+    #df['engine'] = df['engine'].str.replace(r'\b(diesel|electric|hydrogen|battery|hybrid|flex|gasoline|electric)\b', '', regex=True)
+    #df['engine'] = df['engine'].str.strip()
+    df.drop(['engine'], axis=1, inplace=True)
+    delta('engine2')
+
+    df['int_col'] = df['int_col'].str.replace(r'–|\/|\bw\b', ' ', regex=True)
+    df['int_col'] = df['int_col'].str.replace(r'\s{2,}', ' ', regex=True).str.strip()
+    df['int_col'] = df['int_col'].replace('', 'unknown')
+
+    df['ext_col'] = df['ext_col'].str.replace(r'c / c', 'cc', regex=True)
+    df['ext_col'] = df['ext_col'].str.replace(r'–|\/|effect|\bw\b', ' ', regex=True)
+    df['ext_col'] = df['ext_col'].str.replace(r'\s{2,}', ' ', regex=True).str.strip()
+    df['ext_col'] = df['ext_col'].replace('', 'unknown')
+
+    df['ext_pearl'] = np.where(df['ext_col'].str.contains('pearl', case=False, na=False), 1, 0)
+    df['ext_metallic'] = np.where(df['ext_col'].str.contains('metallic', case=False, na=False), 1, 0)
+    df['ext_clearcoat'] = np.where(df['ext_col'].str.contains('clearcoat', case=False, na=False), 1, 0)
+    #df['ext_tintcoat'] = np.where(df['ext_col'].str.contains('tintcoat', case=False, na=False), 1, 0)
+    #df['ext_tinted'] = np.where(df['ext_col'].str.contains('tinted', case=False, na=False), 1, 0)
+  
+    #for i, (value, count) in enumerate(df_common['ext_col'].value_counts().items()):
+    #    print(i, value, count)
+
+    for col in ['int_col', 'ext_col']: # separates int and ext colors
+        df[col] = df[col].apply(lambda x: ' '.join([f'{col}{word}' for word in x.split()]))
+    df['sentence'] = df[['int_col', 'ext_col', 'model']].apply(lambda row: ' '.join(map(str, row)), axis=1)
+    dictionary = set(' '.join(df['sentence'].astype(str).values).split())
+    max_words_count = df['sentence'].apply(lambda x: len(str(x).split())).max()
+    df.drop(['int_col', 'ext_col', 'model'], axis=1, inplace=True)
+    delta("sentence")
+
+    df['accident'] = df['accident'].str.replace(r'unknown', 'none reported', regex=True)
+    df = pd.get_dummies(df, columns=['brand', 'accident', 'clean_title', 'fuel_type', 'transmission'], dtype=int)
+    delta("dummy")
+
+    df['milage_year'] = df['milage'] / (2025 - df['model_year'])
+    df['engine_c1'] = df['engine_volume'] * df['engine_hp']
+    df['engine_c2'] = df['engine_cylinder'] * df['engine_hp']
+    df['engine_c3'] = df['engine_valve'] * df['engine_hp']
+    delta("calculate columns")
+
+    df[['price']] = normalizer_price.fit_transform(df[['price']])
+    for column in num_columns:
+        df[[column]] = MinMaxScaler().fit_transform(df[[column]])
+    delta("normilize")
+
+    return df, list(dictionary), max_words_count
+
+test_df['src'] = 'test'
+train_df['src'] = 'train'
+df_common = pd.concat([train_df, test_df], ignore_index=False)
+delta("common")
+
+df_common, dictionary, max_words_count = prepare_data(df_common)
+delta(f"prepare_data, max_words_count={max_words_count}")
+
+df_train = df_common[df_common['src'] == 'train'].drop(columns=['id', 'src'])
+df_test = df_common[df_common['src'] == 'test'].drop(columns=['src']).set_index('id')
+delta("final")
+
+print(f"dictionaries size: {len(dictionary)}")
+print(f"df_train/df_test sizes: {df_train.shape}, {df_test.shape}")
+
+#for col in df_common.columns:
+#    print(col)
+#print(df['transmission'].value_counts())
+#print(df['accident'].value_counts())
+#for i, (value, count) in enumerate(df[['engine']].value_counts().items()):
+#    print(i, value, count)
+
+pd.set_option('display.max_columns', None)
+
+
+
+
+txt_shape = 10
+dict_size = len(dictionary)
+num_shape = len(num_columns)
+cat_shape = df_train.shape[1] - 2 - num_shape
+
+model = CalcModel(num_shape, cat_shape, txt_shape, dictionary, max_words_count)
+
+NSET = 1
+SIZE = int(df_train.shape[0] * 0.2) if NSET == 1 else df_train.shape[0] // NSET
+df_rnd = df_train.sample(frac=1).reset_index(drop=True)
+
+print(f"DF size: {df_train.shape}, sets number: {NSET}, size: {SIZE}")
+for i in range(NSET):
+    idx = i*SIZE
+    val = df_rnd.iloc[idx:idx+SIZE]
+    train = df_rnd.drop(df_rnd.index[idx:idx+SIZE])
+    model.backward(train, val)
+

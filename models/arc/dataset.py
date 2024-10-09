@@ -6,11 +6,15 @@ from config import Config
 from sklearn.preprocessing import StandardScaler
 
 class Dataset:
-    def __init__(self):
+    def __init__(self, what='train'):
         self.scaler = StandardScaler()
         self.keys = []
         self.data = {}
-        self.load()
+
+        if what == 'test':
+            self.load(train_path='arc-agi_test_challenges.json')
+        else:
+            self.load(train_path='arc-agi_training_challenges.json', test_path='arc-agi_training_solutions.json')
 
     def __expand(self, input):
         height, width = min(len(input), Config.HEIGHT), min(len(input[0]), Config.WIDTH)
@@ -18,21 +22,26 @@ class Dataset:
         output[:height, :width] = [row[0:width] for row in input[0:height]]
         return output
 
-    def load(self, train_path='arc-agi_training_challenges.json', test_path='arc-agi_training_solutions.json'):
-        with open(f'{Config.DATA_DIR}/{train_path}', 'r') as train_file, open(f'{Config.DATA_DIR}/{test_path}', 'r') as test_file:
-            test = json.load(test_file)
+    def load(self, train_path, test_path=None):
+        with open(Config.data_path(train_path), 'r') as train_file:
             train = json.load(train_file)
             for key in train:
                 self.keys.append(key)
                 self.data[key] = {
                     'X_train': [],
-                    'y_train': [],
+                    'Y_train': [],
                     'X_test': self.__expand(train[key]['test'][0]['input']),
-                    'y_test': self.__expand(test[key][0])
+                    'Y_test': None
                 }
                 for index in range(0, len(train[key]['train'])):
                     self.data[key]['X_train'].append(self.__expand(train[key]['train'][index]['input']))
-                    self.data[key]['y_train'].append(self.__expand(train[key]['train'][index]['output']))
+                    self.data[key]['Y_train'].append(self.__expand(train[key]['train'][index]['output']))
+
+        if test_path:
+            with open(Config.data_path(test_path), 'r') as test_file:
+                test = json.load(test_file)
+                for key in train:
+                    self.data[key]['Y_test'] = self.__expand(test[key][0])
 
     def samples(self, key_id=0):
         return self.data if key_id is None else self.data[self.keys[key_id]]
@@ -46,7 +55,7 @@ class Dataset:
         for key in self.data:
             for sample in self.data[key]['X_train']:
                 x.append([element for row in sample for element in row])
-            for sample in self.data[key]['y_train']:
+            for sample in self.data[key]['Y_train']:
                 y.append([element for row in sample for element in row])
 
         if as_tensor:
@@ -62,7 +71,7 @@ class Dataset:
                 sub_y = []
                 for sample in self.data[key]['X_train']:
                     sub_x.append([element for row in sample for element in row])
-                for sample in self.data[key]['y_train']:
+                for sample in self.data[key]['Y_train']:
                     sub_y.append([element for row in sample for element in row])
                 max_deep = len(sub_x) if len(sub_x) > max_deep else max_deep
                 x_series.append(sub_x)  
@@ -81,30 +90,64 @@ class Dataset:
             return np.array(x_series), np.array(y_series)
         return x_series, y_series
 
-    def channels(self, type='whc', as_tensor=False):
+    def channel(self, type='whc', as_tensor=False):
         x, y = [], []
+        x_test, y_test = [], []
+
         if type == 'whc':
             for key in self.data:
                 for sample in self.data[key]['X_train']:
                     x.append((sample[..., None] == np.arange(1, Config.CHANNEL + 1)).astype(int))
-                for sample in self.data[key]['y_train']:
-                    y.append((sample[..., None] == np.arange(1, Config.CHANNEL + 1)).astype(int))        
+                for sample in self.data[key]['Y_train']:
+                    y.append((sample[..., None] == np.arange(1, Config.CHANNEL + 1)).astype(int)) 
+                x_test.append((self.data[key]['X_test'][..., None] == np.arange(1, Config.CHANNEL + 1)).astype(int))        
+                y_test.append((self.data[key]['Y_test'][..., None] == np.arange(1, Config.CHANNEL + 1)).astype(int))        
+
         elif type == 'whc0':
             for key in self.data:
                 for sample in self.data[key]['X_train']:
                     x.append((sample[..., None] == np.arange(Config.CHANNEL)).astype(int))
-                for sample in self.data[key]['y_train']:
+                for sample in self.data[key]['Y_train']:
                     y.append((sample[..., None] == np.arange(Config.CHANNEL)).astype(int))
+                x_test.append((self.data[key]['X_test'][..., None] == np.arange(Config.CHANNEL)).astype(int))
+                y_test.append((self.data[key]['Y_test'][..., None] == np.arange(Config.CHANNEL)).astype(int))
+
         elif type == 'cwh':
             for key in self.data:
                 for sample in self.data[key]['X_train']:
                     x.append((sample[None, :, :] == np.arange(1, Config.CHANNEL + 1)[:, None, None]).astype(int))
-                for sample in self.data[key]['y_train']:
+                for sample in self.data[key]['Y_train']:
                     y.append((sample[None, :, :] == np.arange(1, Config.CHANNEL + 1)[:, None, None]).astype(int))
+                x_test.append((self.data[key]['X_test'][None, :, :] == np.arange(1, Config.CHANNEL + 1)[:, None, None]).astype(int))
+                y_test.append((self.data[key]['Y_test'][None, :, :] == np.arange(1, Config.CHANNEL + 1)[:, None, None]).astype(int))
+
+        if type == 'wh':
+            for key in self.data:
+                for sample in self.data[key]['X_train']:
+                    x.append((sample > 0).astype(int))
+                for sample in self.data[key]['Y_train']:
+                    y.append((sample > 0).astype(int))
+                x_test.append((self.data[key]['X_test'] > 0).astype(int))
+                y_test.append((self.data[key]['Y_test'] > 0).astype(int))
+
+        if type == 'wh_series':
+            for key in self.data:
+                sub_x = []
+                sub_y = []
+                for sample in self.data[key]['X_train']:
+                    sub_x.append((sample > 0).astype(int))
+                for sample in self.data[key]['Y_train']:
+                    sub_y.append((sample > 0).astype(int))
+                x.append(np.array(sub_x))
+                y.append(np.array(sub_y))
+                x_test.append((self.data[key]['X_test'] > 0).astype(int))
+                if self.data[key]['Y_test']:
+                    y_test.append((self.data[key]['Y_test'] > 0).astype(int))
+            return x, y, x_test, y_test
 
         if as_tensor:
-            return tf.data.Dataset.from_tensor_slices((x, y))
-        return np.array(x), np.array(y)
+            return tf.data.Dataset.from_tensor_slices((x, y)), tf.data.Dataset.from_tensor_slices((x_test, y_test))
+        return np.array(x), np.array(y), np.array(x_test), np.array(y_test)
 
     def sparse(self, as_tensor=False):
         #x, y = self.vector()
@@ -150,16 +193,17 @@ if __name__ == '__main__':
     dataset_series = ds.series()
     dataset_sparse = ds.sparse()
     dataset_gausse = ds.gausse()
-    dataset_channel = ds.channels()
+    dataset_channel = ds.channel()
+    dataset_chnnlwh = ds.channel(type='wh')
 
-    #print(dataset_gausse[0])
-    print(dataset_sparse[0][0])
+    print(dataset_chnnlwh[0][0])
 
     print('vector', dataset_vector[0].shape, dataset_vector[1].shape)
     print('series', dataset_series[0].shape, dataset_series[1].shape)
-    print('sparse', dataset_sparse[0][0].shape, dataset_sparse[0][1].shape, dataset_sparse[1][0].shape, dataset_sparse[1][1].shape)   
+    print('sparse', dataset_sparse[0].shape, dataset_sparse[1].shape)   
     print('gausse', dataset_gausse[0].shape, dataset_gausse[1].shape)
     print('channel', dataset_channel[0].shape, dataset_channel[1].shape)
+    print('channel_wh', dataset_chnnlwh[0].shape, dataset_chnnlwh[1].shape)
 
     exit(0)
     plot = Plot()
